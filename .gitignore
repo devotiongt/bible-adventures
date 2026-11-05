@@ -1,0 +1,6 @@
+.godot/
+*.import
+export/
+.DS_Store
+capturas/
+herramientas/blender/generados/

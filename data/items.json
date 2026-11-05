@@ -1,0 +1,13 @@
+{
+	"madera": {"nombre": "Madera", "color": "#9c6b3f", "descripcion": "Madera de gofer, la que Dios pidió para el arca."},
+	"fibra": {"nombre": "Fibra", "color": "#b9c46a", "descripcion": "Fibra de juncos para trenzar cuerdas."},
+	"piedra": {"nombre": "Piedra", "color": "#9a9a9a", "descripcion": "Piedra para fabricar herramientas."},
+	"brea": {"nombre": "Brea", "color": "#2e2420", "descripcion": "Brea para sellar el arca por dentro y por fuera."},
+	"tablon": {"nombre": "Tablón", "color": "#c99a62", "descripcion": "Tablones para el casco y las cubiertas."},
+	"viga": {"nombre": "Viga", "color": "#7d5230", "descripcion": "Vigas gruesas para la estructura."},
+	"clavija": {"nombre": "Clavija", "color": "#e0c08a", "descripcion": "Clavijas de madera para unir las piezas."},
+	"cuerda": {"nombre": "Cuerda", "color": "#d8c79a", "descripcion": "Cuerda trenzada."},
+	"hacha": {"nombre": "Hacha", "color": "#6f8fa8", "herramienta": true, "descripcion": "Tala árboles el doble de rápido."},
+	"martillo": {"nombre": "Martillo", "color": "#8a6f5a", "herramienta": true, "descripcion": "Necesario para construir el arca."},
+	"cubo": {"nombre": "Cubo", "color": "#a8845a", "herramienta": true, "descripcion": "Sirve para sacar brea de los pozos."}
+}

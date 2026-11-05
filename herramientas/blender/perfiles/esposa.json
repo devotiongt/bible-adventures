@@ -1,0 +1,15 @@
+{
+	"_nota": "Esposa de Noé (1,45 m): las medidas de Noé escaladas a su altura y la mano medida en su malla (herramientas/blender/rig_noe.py). Modelo en T (referencias/esposa_giro_t.png): la mano a la altura del hombro.",
+	"CUERPO": "esposa",
+	"PREFIJO": "Esposa_",
+	"SPINE_NEW": [0.0, 0.599, 0.692, 0.786, 0.889, 1.0, 1.066, 1.45],
+	"HIP": [0.1, 0.0, 0.58],
+	"KNEE": [0.111, -0.01, 0.33],
+	"ANKLE": [0.111, 0.0, 0.08],
+	"SHOULDER": [0.2, 0.02, 0.94],
+	"HAND_TIP": [0.515, -0.002, 0.926],
+	"SKIRT": [0.14, 0.62],
+	"ZONAS_ESCALA": 0.935,
+	"CUERDA": false,
+	"ANCHO_CUERPO": 0.28
+}

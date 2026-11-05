@@ -1,0 +1,9 @@
+[
+	{"resultado": "tablon", "cantidad": 2, "ingredientes": {"madera": 1}},
+	{"resultado": "viga", "cantidad": 1, "ingredientes": {"madera": 2}},
+	{"resultado": "clavija", "cantidad": 4, "ingredientes": {"madera": 1}},
+	{"resultado": "cuerda", "cantidad": 1, "ingredientes": {"fibra": 3}},
+	{"resultado": "martillo", "cantidad": 1, "ingredientes": {"madera": 1, "piedra": 2, "cuerda": 1}},
+	{"resultado": "hacha", "cantidad": 1, "ingredientes": {"madera": 2, "piedra": 2, "cuerda": 1}},
+	{"resultado": "cubo", "cantidad": 1, "ingredientes": {"tablon": 3, "cuerda": 1}}
+]

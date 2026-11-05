@@ -1,0 +1,27 @@
+[
+	{
+		"nombre": "Quilla y costillas",
+		"materiales": {"viga": 3, "clavija": 8},
+		"al_completar": "La quilla está puesta. Es la columna del arca: sobre ella se levantará todo lo demás."
+	},
+	{
+		"nombre": "Casco",
+		"materiales": {"tablon": 12, "viga": 2, "clavija": 12},
+		"al_completar": "«De trescientos codos la longitud del arca, de cincuenta codos su anchura, y de treinta codos su altura». (Génesis 6:15)"
+	},
+	{
+		"nombre": "Sellar con brea",
+		"materiales": {"brea": 6},
+		"al_completar": "Noé cubrió el arca con brea por dentro y por fuera, tal como Dios le había mandado. (Génesis 6:14)"
+	},
+	{
+		"nombre": "Cubiertas y aposentos",
+		"materiales": {"tablon": 10, "viga": 3, "clavija": 8},
+		"al_completar": "«Le harás piso bajo, segundo y tercero». Habrá lugar para cada animal. (Génesis 6:16)"
+	},
+	{
+		"nombre": "Techo, ventana y puerta",
+		"materiales": {"tablon": 8, "cuerda": 2, "clavija": 6},
+		"al_completar": "«Una ventana harás al arca... y pondrás la puerta del arca a su lado». (Génesis 6:16)"
+	}
+]

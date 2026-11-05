@@ -1,26 +1,26 @@
 extends Node
-## Estado global del juego (autoload "Game"): inventario, recetas, etapas del arca,
-## controles y guardado. Los datos se leen de res://data/*.json para que sea fácil
-## añadir objetos, recetas o capítulos sin tocar código.
+## Global game state (autoload "Game"): inventory, recipes, ark stages,
+## controls and saving. Data is read from res://data/*.json so it is easy
+## to add items, recipes or chapters without touching code.
 
 signal inventory_changed
 signal ark_stage_changed(stage: int)
 signal notify(text: String)
 
-const SAVE_PATH := "user://partida.json"
+const SAVE_PATH := "user://savegame.json"
 
 var items: Dictionary = {}
 var recipes: Array = []
 var ark_stages: Array = []
 
 var inventory: Dictionary = {}
-var ark_stage: int = 0  ## Número de etapas del arca ya construidas.
+var ark_stage: int = 0  ## Number of ark stages already built.
 var intro_seen := false
 
-## Mientras hay un panel o diálogo abierto, Noé no se mueve ni interactúa.
+## While a panel or dialog is open, Noah doesn't move or interact.
 var ui_blocked := false
 
-## Argumentos de línea de comandos tras "--" (p. ej. --nuevo, --captura=ruta.png).
+## Command-line arguments after "--" (e.g. --new, --screenshot=path.png).
 var args: Dictionary = {}
 var _saving_enabled := true
 
@@ -29,22 +29,22 @@ func _ready() -> void:
 	_parse_args()
 	_setup_input()
 	items = _load_json("res://data/items.json")
-	recipes = _load_json("res://data/recetas.json")
-	ark_stages = _load_json("res://data/arca.json")
+	recipes = _load_json("res://data/recipes.json")
+	ark_stages = _load_json("res://data/ark.json")
 
-	_saving_enabled = not args.has("sin_guardar")
-	if not args.has("nuevo"):
+	_saving_enabled = not args.has("no_save")
+	if not args.has("new"):
 		load_game()
 	if args.has("demo"):
 		for id in items:
 			inventory[id] = 40
-	if args.has("etapas"):
-		ark_stage = clampi(int(args["etapas"]), 0, ark_stages.size())
-	if args.has("sin_intro"):
+	if args.has("stages"):
+		ark_stage = clampi(int(args["stages"]), 0, ark_stages.size())
+	if args.has("no_intro"):
 		intro_seen = true
 
 
-# --- Inventario ---------------------------------------------------------------
+# --- Inventory ----------------------------------------------------------------
 
 func count(id: String) -> int:
 	return int(inventory.get(id, 0))
@@ -75,7 +75,7 @@ func consume(requirements: Dictionary) -> void:
 
 
 func item_name(id: String) -> String:
-	return items.get(id, {}).get("nombre", id)
+	return items.get(id, {}).get("name", id)
 
 
 func item_color(id: String) -> Color:
@@ -83,10 +83,10 @@ func item_color(id: String) -> Color:
 
 
 func is_tool(id: String) -> bool:
-	return items.get(id, {}).get("herramienta", false)
+	return items.get(id, {}).get("tool", false)
 
 
-## Texto tipo "tablón 4/12 · clavija 0/8".
+## Text like "plank 4/12 · peg 0/8".
 func requirements_text(requirements: Dictionary) -> String:
 	var parts: PackedStringArray = []
 	for id in requirements:
@@ -94,31 +94,31 @@ func requirements_text(requirements: Dictionary) -> String:
 	return " · ".join(parts)
 
 
-# --- Fabricación --------------------------------------------------------------
+# --- Crafting -----------------------------------------------------------------
 
 func can_craft(recipe: Dictionary) -> bool:
-	var result: String = recipe["resultado"]
+	var result: String = recipe["result"]
 	if is_tool(result) and has_item(result):
 		return false
-	return has_all(recipe["ingredientes"])
+	return has_all(recipe["ingredients"])
 
 
 func craft(recipe: Dictionary) -> bool:
-	var result: String = recipe["resultado"]
+	var result: String = recipe["result"]
 	if is_tool(result) and has_item(result):
-		notify.emit("Ya tienes un %s." % item_name(result).to_lower())
+		notify.emit("You already have a %s." % item_name(result).to_lower())
 		return false
-	if not has_all(recipe["ingredientes"]):
-		notify.emit("Te faltan materiales para %s." % item_name(result).to_lower())
+	if not has_all(recipe["ingredients"]):
+		notify.emit("You are missing materials for %s." % item_name(result).to_lower())
 		return false
-	consume(recipe["ingredientes"])
-	var amount := int(recipe["cantidad"])
+	consume(recipe["ingredients"])
+	var amount := int(recipe["amount"])
 	add(result, amount)
-	notify.emit("Fabricaste %d × %s" % [amount, item_name(result)])
+	notify.emit("You crafted %d × %s" % [amount, item_name(result)])
 	return true
 
 
-# --- Arca ---------------------------------------------------------------------
+# --- Ark ----------------------------------------------------------------------
 
 func ark_complete() -> bool:
 	return ark_stage >= ark_stages.size()
@@ -134,13 +134,13 @@ func build_ark_stage() -> bool:
 	var stage := next_ark_stage()
 	if stage.is_empty():
 		return false
-	if not has_item("martillo"):
-		notify.emit("Necesitas un martillo para construir. Fabrícalo con C.")
+	if not has_item("hammer"):
+		notify.emit("You need a hammer to build. Craft it with C.")
 		return false
-	if not has_all(stage["materiales"]):
-		notify.emit("Faltan materiales: " + requirements_text(stage["materiales"]))
+	if not has_all(stage["materials"]):
+		notify.emit("Missing materials: " + requirements_text(stage["materials"]))
 		return false
-	consume(stage["materiales"])
+	consume(stage["materials"])
 	ark_stage += 1
 	inventory_changed.emit()
 	save_game()
@@ -148,7 +148,7 @@ func build_ark_stage() -> bool:
 	return true
 
 
-# --- Guardado -----------------------------------------------------------------
+# --- Saving -------------------------------------------------------------------
 
 func save_game() -> void:
 	if not _saving_enabled:
@@ -157,9 +157,9 @@ func save_game() -> void:
 	if file == null:
 		return
 	file.store_string(JSON.stringify({
-		"inventario": inventory,
-		"etapa_arca": ark_stage,
-		"intro_vista": intro_seen,
+		"inventory": inventory,
+		"ark_stage": ark_stage,
+		"intro_seen": intro_seen,
 	}, "\t"))
 
 
@@ -170,11 +170,11 @@ func load_game() -> void:
 	if typeof(data) != TYPE_DICTIONARY:
 		return
 	inventory.clear()
-	var saved: Dictionary = data.get("inventario", {})
+	var saved: Dictionary = data.get("inventory", {})
 	for id in saved:
 		inventory[id] = int(saved[id])
-	ark_stage = int(data.get("etapa_arca", 0))
-	intro_seen = bool(data.get("intro_vista", false))
+	ark_stage = int(data.get("ark_stage", 0))
+	intro_seen = bool(data.get("intro_seen", false))
 
 
 func reset_game() -> void:
@@ -185,12 +185,12 @@ func reset_game() -> void:
 	get_tree().reload_current_scene()
 
 
-# --- Utilidades ---------------------------------------------------------------
+# --- Utilities ----------------------------------------------------------------
 
 func _load_json(path: String) -> Variant:
 	var data = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if data == null:
-		push_error("No se pudo leer " + path)
+		push_error("Could not read " + path)
 	return data
 
 
@@ -200,30 +200,30 @@ func _parse_args() -> void:
 		args[kv[0]] = kv[1] if kv.size() > 1 else "1"
 
 
-## Teclado y mando. El control táctil para móvil se añadirá encima de estas acciones.
+## Keyboard and gamepad. Touch controls for mobile will be added on top of these actions.
 func _setup_input() -> void:
 	var keys := {
-		"mover_izq": [KEY_A, KEY_LEFT],
-		"mover_der": [KEY_D, KEY_RIGHT],
-		"mover_arriba": [KEY_W, KEY_UP],
-		"mover_abajo": [KEY_S, KEY_DOWN],
-		"interactuar": [KEY_E, KEY_SPACE],
-		"craftear": [KEY_C, KEY_TAB],
-		"camara_izq": [KEY_Q],
-		"camara_der": [KEY_R],
-		"reiniciar": [KEY_F9],
+		"move_left": [KEY_A, KEY_LEFT],
+		"move_right": [KEY_D, KEY_RIGHT],
+		"move_up": [KEY_W, KEY_UP],
+		"move_down": [KEY_S, KEY_DOWN],
+		"interact": [KEY_E, KEY_SPACE],
+		"craft": [KEY_C, KEY_TAB],
+		"camera_left": [KEY_Q],
+		"camera_right": [KEY_R],
+		"restart": [KEY_F9],
 	}
 	var buttons := {
-		"interactuar": JOY_BUTTON_A,
-		"craftear": JOY_BUTTON_Y,
-		"camara_izq": JOY_BUTTON_LEFT_SHOULDER,
-		"camara_der": JOY_BUTTON_RIGHT_SHOULDER,
+		"interact": JOY_BUTTON_A,
+		"craft": JOY_BUTTON_Y,
+		"camera_left": JOY_BUTTON_LEFT_SHOULDER,
+		"camera_right": JOY_BUTTON_RIGHT_SHOULDER,
 	}
 	var axes := {
-		"mover_izq": [JOY_AXIS_LEFT_X, -1.0],
-		"mover_der": [JOY_AXIS_LEFT_X, 1.0],
-		"mover_arriba": [JOY_AXIS_LEFT_Y, -1.0],
-		"mover_abajo": [JOY_AXIS_LEFT_Y, 1.0],
+		"move_left": [JOY_AXIS_LEFT_X, -1.0],
+		"move_right": [JOY_AXIS_LEFT_X, 1.0],
+		"move_up": [JOY_AXIS_LEFT_Y, -1.0],
+		"move_down": [JOY_AXIS_LEFT_Y, 1.0],
 	}
 	for action in keys:
 		if not InputMap.has_action(action):

@@ -1,6 +1,6 @@
 extends CanvasLayer
-## Interfaz: objetivo, inventario, indicación de acción, avisos, panel de
-## fabricación y diálogos con los textos bíblicos.
+## Interface: objective, inventory, action prompt, notices, crafting
+## panel and dialogs with the Bible texts.
 
 const PARCHMENT := Color(0.96, 0.91, 0.8, 0.94)
 const PARCHMENT_DARK := Color(0.88, 0.8, 0.64, 0.95)
@@ -78,10 +78,10 @@ func _ready() -> void:
 
 	if not Game.intro_seen:
 		show_dialog([
-			"La tierra se había llenado de violencia, pero Noé halló gracia ante los ojos del Señor. (Génesis 6:8)",
-			"Dios le dijo a Noé: «Hazte un arca de madera de gofer; harás aposentos en el arca y la cubrirás con brea por dentro y por fuera». (Génesis 6:14)",
-			"Tu misión: reúne materiales en la isla, fabrica herramientas y construye el arca etapa por etapa.",
-			"Consejo: tala árboles con E para conseguir madera, recoge fibra de los juncos y piedra de las rocas. Con C abres el panel de fabricación: empieza por un martillo.",
+			"The earth was filled with violence, but Noah found grace in the eyes of the Lord. (Genesis 6:8)",
+			"God said to Noah: “Make thee an ark of gopher wood; rooms shalt thou make in the ark, and shalt pitch it within and without with pitch.” (Genesis 6:14)",
+			"Your mission: gather materials on the island, craft tools and build the ark stage by stage.",
+			"Tip: chop trees with E to get wood, gather fiber from the reeds and stone from the rocks. Press C to open the crafting panel: start with a hammer.",
 		])
 		Game.intro_seen = true
 		Game.save_game()
@@ -90,14 +90,14 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	_update_objective()
 	if not _dialog_queue.is_empty() or _dialog_root.visible:
-		if Input.is_action_just_pressed("interactuar") or Input.is_action_just_pressed("ui_accept"):
+		if Input.is_action_just_pressed("interact") or Input.is_action_just_pressed("ui_accept"):
 			_next_dialog()
 		return
-	if Input.is_action_just_pressed("craftear"):
+	if Input.is_action_just_pressed("craft"):
 		_toggle_craft()
 	elif _craft_root.visible and Input.is_action_just_pressed("ui_cancel"):
 		_toggle_craft()
-	if Input.is_action_just_pressed("reiniciar"):
+	if Input.is_action_just_pressed("restart"):
 		Game.reset_game()
 		return
 
@@ -120,14 +120,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			Game.craft(Game.recipes[index])
 
 
-# --- Objetivo e inventario ----------------------------------------------------
+# --- Objective and inventory --------------------------------------------------
 
 func _build_objective_panel() -> PanelContainer:
 	var panel := PanelContainer.new()
 	var box := VBoxContainer.new()
 	panel.add_child(box)
 	var title := Label.new()
-	title.text = "Capítulo 1 · El Arca de Noé"
+	title.text = "Chapter 1 · Noah's Ark"
 	title.add_theme_font_size_override("font_size", 22)
 	title.add_theme_color_override("font_color", ACCENT)
 	box.add_child(title)
@@ -136,7 +136,7 @@ func _build_objective_panel() -> PanelContainer:
 	_objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(_objective)
 	var help := Label.new()
-	help.text = "WASD mover · E acción · C fabricar · Q/R girar cámara"
+	help.text = "WASD move · E action · C craft · Q/R rotate camera"
 	help.add_theme_font_size_override("font_size", 13)
 	help.modulate.a = 0.7
 	box.add_child(help)
@@ -145,13 +145,13 @@ func _build_objective_panel() -> PanelContainer:
 
 func _update_objective() -> void:
 	if Game.ark_complete():
-		_objective.text = "¡El arca está terminada! Pronto llegarán los animales, de dos en dos."
+		_objective.text = "The ark is finished! Soon the animals will arrive, two by two."
 		return
 	var stage := Game.next_ark_stage()
-	var text := "Etapa %d de %d: %s\n%s" % [Game.ark_stage + 1, Game.ark_stages.size(),
-			stage["nombre"], Game.requirements_text(stage["materiales"])]
-	if not Game.has_item("martillo"):
-		text += "\nPrimero fabrica un martillo (C)."
+	var text := "Stage %d of %d: %s\n%s" % [Game.ark_stage + 1, Game.ark_stages.size(),
+			stage["name"], Game.requirements_text(stage["materials"])]
+	if not Game.has_item("hammer"):
+		text += "\nFirst craft a hammer (C)."
 	_objective.text = text
 
 
@@ -166,7 +166,7 @@ func _on_inventory_changed() -> void:
 		_inventory.add_child(_make_slot(id))
 	if not any:
 		var empty := Label.new()
-		empty.text = "Inventario vacío: acércate a un árbol y pulsa E"
+		empty.text = "Inventory empty: walk up to a tree and press E"
 		_inventory.add_child(empty)
 	if _craft_root and _craft_root.visible:
 		_rebuild_craft_list()
@@ -191,11 +191,11 @@ func _make_slot(id: String) -> Control:
 	count.add_theme_font_size_override("font_size", 14)
 	count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(count)
-	box.tooltip_text = Game.items[id].get("descripcion", "")
+	box.tooltip_text = Game.items[id].get("description", "")
 	return box
 
 
-# --- Avisos -------------------------------------------------------------------
+# --- Notices ------------------------------------------------------------------
 
 func toast(text: String) -> void:
 	var panel := PanelContainer.new()
@@ -216,14 +216,14 @@ func toast(text: String) -> void:
 
 func _on_ark_stage_changed(stage: int) -> void:
 	var data: Dictionary = Game.ark_stages[stage - 1]
-	var lines: Array[String] = ["¡Etapa terminada: %s!" % data["nombre"], data["al_completar"]]
+	var lines: Array[String] = ["Stage finished: %s!" % data["name"], data["on_complete"]]
 	if Game.ark_complete():
-		lines.append("«Y lo hizo así Noé; hizo conforme a todo lo que Dios le mandó». (Génesis 6:22)")
-		lines.append("¡Capítulo 1 completado! Próximamente: los animales llegan al arca de dos en dos.")
+		lines.append("“Thus did Noah; according to all that God commanded him, so did he.” (Genesis 6:22)")
+		lines.append("Chapter 1 complete! Coming soon: the animals come to the ark two by two.")
 	show_dialog(lines)
 
 
-# --- Fabricación --------------------------------------------------------------
+# --- Crafting -----------------------------------------------------------------
 
 func _build_craft_panel(root: Control) -> void:
 	_craft_root = CenterContainer.new()
@@ -237,7 +237,7 @@ func _build_craft_panel(root: Control) -> void:
 	box.add_theme_constant_override("separation", 10)
 	panel.add_child(box)
 	var title := Label.new()
-	title.text = "Fabricar"
+	title.text = "Craft"
 	title.add_theme_font_size_override("font_size", 24)
 	title.add_theme_color_override("font_color", ACCENT)
 	box.add_child(title)
@@ -245,7 +245,7 @@ func _build_craft_panel(root: Control) -> void:
 	_craft_list.add_theme_constant_override("separation", 8)
 	box.add_child(_craft_list)
 	var hint := Label.new()
-	hint.text = "Pulsa el número o el botón · C para cerrar"
+	hint.text = "Press the number or the button · C to close"
 	hint.add_theme_font_size_override("font_size", 13)
 	hint.modulate.a = 0.7
 	box.add_child(hint)
@@ -263,7 +263,7 @@ func _rebuild_craft_list() -> void:
 		child.queue_free()
 	for i in Game.recipes.size():
 		var recipe: Dictionary = Game.recipes[i]
-		var result: String = recipe["resultado"]
+		var result: String = recipe["result"]
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 12)
 		var swatch := ColorRect.new()
@@ -271,7 +271,7 @@ func _rebuild_craft_list() -> void:
 		swatch.custom_minimum_size = Vector2(22, 22)
 		row.add_child(_centered(swatch))
 		var name_label := Label.new()
-		name_label.text = "%d. %s ×%d" % [i + 1, Game.item_name(result), int(recipe["cantidad"])]
+		name_label.text = "%d. %s ×%d" % [i + 1, Game.item_name(result), int(recipe["amount"])]
 		name_label.custom_minimum_size.x = 170
 		row.add_child(name_label)
 		var ingredients := RichTextLabel.new()
@@ -279,12 +279,12 @@ func _rebuild_craft_list() -> void:
 		ingredients.fit_content = true
 		ingredients.scroll_active = false
 		ingredients.custom_minimum_size.x = 300
-		ingredients.text = _ingredients_bbcode(recipe["ingredientes"])
+		ingredients.text = _ingredients_bbcode(recipe["ingredients"])
 		ingredients.add_theme_color_override("default_color", INK)
 		row.add_child(ingredients)
 		var button := Button.new()
 		var owned := Game.is_tool(result) and Game.has_item(result)
-		button.text = "Ya lo tienes" if owned else "Fabricar"
+		button.text = "Already owned" if owned else "Craft"
 		button.disabled = not Game.can_craft(recipe)
 		button.custom_minimum_size.x = 120
 		button.pressed.connect(Game.craft.bind(recipe))
@@ -301,7 +301,7 @@ func _ingredients_bbcode(requirements: Dictionary) -> String:
 	return ", ".join(parts)
 
 
-# --- Diálogos -----------------------------------------------------------------
+# --- Dialogs ------------------------------------------------------------------
 
 func _build_dialog(root: Control) -> void:
 	_dialog_root = MarginContainer.new()
@@ -328,7 +328,7 @@ func _build_dialog(root: Control) -> void:
 	_dialog_text.add_theme_font_size_override("font_size", 22)
 	box.add_child(_dialog_text)
 	var hint := Label.new()
-	hint.text = "E / Enter / clic para continuar"
+	hint.text = "E / Enter / click to continue"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	hint.add_theme_font_size_override("font_size", 13)
 	hint.modulate.a = 0.6
@@ -353,7 +353,7 @@ func _next_dialog() -> void:
 	_dialog_text.text = _dialog_queue.pop_front()
 
 
-# --- Utilidades ---------------------------------------------------------------
+# --- Utilities ----------------------------------------------------------------
 
 func _centered(control: Control) -> CenterContainer:
 	var center := CenterContainer.new()

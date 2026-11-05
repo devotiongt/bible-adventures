@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="470" viewBox="0 0 680 470">
+<rect width="680" height="470" fill="#ffffff"/>
+<rect x="40" y="20" width="600" height="420" rx="18" fill="#cfe2a6"/>
+<ellipse cx="350" cy="250" rx="290" ry="180" fill="#e3eec3"/>
+<ellipse cx="470" cy="75" rx="95" ry="42" fill="#eadfb8"/>
+<rect x="440" y="62" width="62" height="18" rx="6" fill="#b98353"/>
+<path d="M150 20 C120 120 140 200 110 260 C85 320 100 390 80 440" fill="none" stroke="#9cc8da" stroke-width="20" stroke-linecap="round"/>
+<g fill="#7fae5c"><circle cx="152" cy="80" r="9"/><circle cx="160" cy="120" r="8"/><circle cx="150" cy="160" r="9"/><circle cx="143" cy="330" r="8"/><circle cx="128" cy="370" r="9"/><circle cx="120" cy="405" r="8"/></g>
+<rect x="165" y="280" width="110" height="18" fill="#e9d79b"/><rect x="165" y="300" width="110" height="18" fill="#cfe09a"/><rect x="165" y="320" width="110" height="18" fill="#e9d79b"/><rect x="165" y="340" width="110" height="18" fill="#cfe09a"/><rect x="165" y="360" width="110" height="18" fill="#e9d79b"/>
+<path d="M125 299 H275 M125 339 H275 M220 280 V380" fill="none" stroke="#7fb6d0" stroke-width="2"/>
+<rect x="102" y="232" width="36" height="14" rx="3" fill="#a8774c"/>
+<path d="M138 239 C200 240 250 235 300 232 C330 230 345 228 360 228 C390 228 410 190 432 160 C450 130 460 105 468 84" fill="none" stroke="#e2c08a" stroke-width="9" stroke-linecap="round"/>
+<path d="M360 228 C385 250 400 280 420 300" fill="none" stroke="#e2c08a" stroke-width="5" stroke-linecap="round"/>
+<path d="M300 232 C300 260 305 290 310 315" fill="none" stroke="#e2c08a" stroke-width="5" stroke-linecap="round"/>
+<ellipse cx="360" cy="228" rx="32" ry="22" fill="#d8d2c4"/>
+<circle cx="352" cy="226" r="5" fill="#8c8a84"/>
+<g fill="#e7b98a" stroke="#b07a4e" stroke-width="0.8"><rect x="318" y="180" width="22" height="18"/><rect x="341" y="176" width="18" height="22"/><rect x="360" y="183" width="22" height="16"/><rect x="384" y="190" width="16" height="16"/><rect x="250" y="210" width="20" height="16"/><rect x="271" y="206" width="16" height="20"/><rect x="288" y="211" width="18" height="15"/><rect x="250" y="250" width="18" height="18"/><rect x="269" y="252" width="20" height="16"/><rect x="335" y="258" width="20" height="18"/><rect x="356" y="262" width="18" height="18"/><rect x="376" y="258" width="16" height="16"/><rect x="318" y="300" width="20" height="16"/><rect x="290" y="306" width="16" height="16"/><rect x="398" y="292" width="18" height="18"/><rect x="418" y="306" width="20" height="16"/></g>
+<rect x="404" y="128" width="36" height="28" fill="none" stroke="#b07a4e" stroke-width="1.2" stroke-dasharray="3 2"/>
+<rect x="410" y="133" width="22" height="18" fill="#e7b98a" stroke="#b07a4e" stroke-width="0.8"/>
+<circle cx="300" cy="333" r="6" fill="#c98b5a"/>
+<g fill="none" stroke="#a8774c" stroke-width="1.2"><circle cx="510" cy="250" r="22"/><circle cx="545" cy="310" r="20"/></g>
+<g fill="#5f9a4a"><circle cx="605" cy="150" r="10"/><circle cx="618" cy="190" r="10"/><circle cx="600" cy="230" r="11"/><circle cx="615" cy="275" r="10"/><circle cx="600" cy="320" r="10"/><circle cx="615" cy="360" r="10"/></g>
+<g fill="#b8b4aa"><circle cx="560" cy="110" r="7"/><circle cx="574" cy="118" r="6"/><circle cx="565" cy="126" r="5"/></g>
+<g font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5a4630">
+<text x="470" y="45" text-anchor="middle">Ark meadow (hill)</text>
+<text x="452" y="178">Noah's house</text>
+<text x="360" y="214" text-anchor="middle">Plaza and well</text>
+<text x="220" y="400" text-anchor="middle">Gardens and canals</text>
+<text x="170" y="55">River and palms</text>
+<text x="290" y="355" text-anchor="middle">Potters</text>
+<text x="530" y="355" text-anchor="middle">Pastures and pens</text>
+<text x="560" y="98" text-anchor="middle">Quarry</text>
+<text x="590" y="420" text-anchor="middle">Forest</text>
+<text x="120" y="270" text-anchor="middle">Bridge</text>
+</g></svg>

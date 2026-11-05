@@ -1,7 +1,7 @@
-// Terreno: pasto y arena por vértice, y encima tierra con orillas nítidas (camino, patios, claro del
-// arca y taludes) y el empedrado de la plaza. Cada vértice trae cuánto es de cada cosa (UV, UV2); al
-// cortar ese valor en 0,5 por píxel las orillas siguen curvas suaves en vez de la cuadrícula de
-// triángulos. En la plaza los caminos se acaban: es un solo suelo de losas con su bordillo.
+// Terrain: grass and sand per vertex, and on top dirt with crisp edges (path, yards, the ark
+// clearing and banks) and the plaza paving. Each vertex carries how much of each thing it is (UV, UV2);
+// cutting that value at 0.5 per pixel makes the edges follow smooth curves instead of the triangle
+// grid. In the plaza the paths end: it's a single flagstone floor with its curb.
 shader_type spatial;
 render_mode cull_back;
 
@@ -31,7 +31,7 @@ vec2 hash2(vec2 p) {
 	return fract(sin(p) * 43758.5453);
 }
 
-// Losas irregulares (Voronoi): distancia al borde de la losa y un valor propio de cada una.
+// Irregular flagstones (Voronoi): distance to the stone's edge and a value unique to each one.
 vec2 flagstones(vec2 p) {
 	vec2 cell = floor(p);
 	vec2 f = fract(p);
@@ -56,7 +56,7 @@ vec2 flagstones(vec2 p) {
 }
 
 void fragment() {
-	float fleck = COLOR.a - 0.5;   // Cambio de tono del triángulo (los "triangulitos" del pasto).
+	float fleck = COLOR.a - 0.5;   // Tone shift of the triangle (the little "triangles" of the grass).
 	float plaza = UV2.y;
 	vec3 c = COLOR.rgb;
 	vec3 strata = mix(cliff_color, cliff_dark, clamp(0.5 + 0.35 * sin(world_pos.y * 14.0), 0.0, 1.0));
@@ -64,8 +64,8 @@ void fragment() {
 	float in_plaza = edge(plaza);
 	c = mix(c, dirt_color * (1.0 + fleck), edge(UV2.x) * (1.0 - in_plaza));
 	c = mix(c, path_color * (1.0 + fleck), edge(UV.y) * (1.0 - in_plaza));
-	// Empedrado: losas de tono algo distinto, juntas de tierra y un leve oscurecido en los bordes de
-	// cada losa; alrededor, un bordillo de piedra más oscura.
+	// Paving: flagstones of slightly different tones, dirt joints and a slight darkening at the edges of
+	// each stone; around it, a curb of darker stone.
 	vec2 st = flagstones(world_pos.xz / stone_size);
 	float joint = smoothstep(0.03, 0.09, st.x);
 	vec3 stone = mix(stone_dark, stone_light, st.y) * mix(0.9, 1.0, smoothstep(0.05, 0.3, st.x));

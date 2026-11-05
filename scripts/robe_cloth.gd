@@ -1,27 +1,27 @@
 extends MeshInstance3D
-## Falda de la túnica simulada como tela (Verlet / dinámica por posiciones).
-## - La fila de la cintura va pegada a la pelvis.
-## - Cada partícula tiende suavemente a su posición "ideal" (la pose animada), así la
-##   túnica conserva su forma, pero se retrasa y balancea con la inercia al andar o girar.
-## - Las piernas y la cadera son cápsulas que empujan la tela hacia fuera.
-## La simulación va en espacio de mundo para que la inercia sea real.
-## Si se le da una malla modelo (la falda de Blender, con pliegues), se dibuja esa malla
-## deformada por la tela: cada vértice sigue al trozo de tela que le toca (por su UV) y
-## conserva su pliegue relativo a él. Si no, dibuja la propia rejilla de la simulación.
+## Tunic skirt simulated as cloth (Verlet / position-based dynamics).
+## - The waist row is stuck to the pelvis.
+## - Each particle gently tends toward its "ideal" position (the animated pose), so the
+##   tunic keeps its shape, but lags and swings with inertia when walking or turning.
+## - The legs and hips are capsules that push the cloth outward.
+## The simulation runs in world space so the inertia is real.
+## If given a template mesh (the Blender skirt, with folds), it draws that mesh
+## deformed by the cloth: each vertex follows the patch of cloth it belongs to (by its UV) and
+## keeps its fold relative to it. Otherwise it draws the simulation grid itself.
 
 const SEGMENTS := 28
 const MIN_STEP := 1.0 / 240.0
 const MAX_STEP := 1.0 / 30.0
 const ITERATIONS := 4
 const GRAVITY := Vector3(0, -9.8, 0)
-const DAMPING := 0.97          ## Fracción de la velocidad que se conserva cada 1/60 s.
-const THICKNESS := 0.035       ## Separación entre la tela y el cuerpo.
-const MAX_DRIFT := 0.3         ## Lo máximo que la tela se aleja de su pose ideal.
-const AROUND_SLACK := 1.25     ## La tela puede estirarse un poco a lo ancho si una pierna la empuja.
-const STIFF_TOP := 0.18        ## Fuerza hacia la pose ideal junto a la cintura...
-const STIFF_HEM := 0.025       ## ...y en el borde inferior (más libre).
+const DAMPING := 0.97          ## Fraction of the velocity kept every 1/60 s.
+const THICKNESS := 0.035       ## Gap between the cloth and the body.
+const MAX_DRIFT := 0.3         ## The farthest the cloth strays from its ideal pose.
+const AROUND_SLACK := 1.25     ## The cloth can stretch a little sideways if a leg pushes it.
+const STIFF_TOP := 0.18        ## Pull toward the ideal pose near the waist...
+const STIFF_HEM := 0.025       ## ...and at the bottom hem (looser).
 
-## Cápsulas de colisión: [hueso inicio, hueso fin, radio].
+## Collision capsules: [start bone, end bone, radius].
 const CAPSULES := [
 	["thigh_l", "calf_l", 0.1], ["calf_l", "foot_l", 0.075],
 	["thigh_r", "calf_r", 0.1], ["calf_r", "foot_r", 0.075],
@@ -29,29 +29,29 @@ const CAPSULES := [
 ]
 const BONES := ["pelvis", "thigh_l", "calf_l", "thigh_r", "calf_r", "spine_02", "foot_l", "foot_r"]
 
-var body_skeleton: Skeleton3D  ## Esqueleto de Noé (MeshInstance3D ya tiene "skeleton").
+var body_skeleton: Skeleton3D  ## Noah's skeleton (MeshInstance3D already has "skeleton").
 
 var _rings := 0
-var _rest := PackedVector3Array()     ## Posición en reposo (espacio del esqueleto).
-var _pos := PackedVector3Array()      ## Posición simulada (mundo).
+var _rest := PackedVector3Array()     ## Rest position (skeleton space).
+var _pos := PackedVector3Array()      ## Simulated position (world).
 var _prev := PackedVector3Array()
-var _target := PackedVector3Array()   ## Pose ideal de este paso (mundo).
-var _weights: Array[Dictionary] = []  ## hueso -> peso, por partícula.
+var _target := PackedVector3Array()   ## Ideal pose for this step (world).
+var _weights: Array[Dictionary] = []  ## bone -> weight, per particle.
 var _stiff := PackedFloat32Array()
-var _edges := PackedInt32Array()      ## Pares (a, b) de partículas unidas.
+var _edges := PackedInt32Array()      ## Pairs (a, b) of linked particles.
 var _edge_len := PackedFloat32Array()
-var _edge_slack := PackedFloat32Array()  ## Cuánto puede estirarse cada unión sin corregirla.
+var _edge_slack := PackedFloat32Array()  ## How much each link can stretch without being corrected.
 var _colors := PackedColorArray()
 var _indices := PackedInt32Array()
 var _bone_id := {}
-var _skin := {}                       ## hueso -> Transform3D de reposo a pose actual (mundo).
-var _template := []                   ## Superficies de la malla modelo (ver _prepare_template).
+var _skin := {}                       ## bone -> Transform3D from rest to current pose (world).
+var _template := []                   ## Surfaces of the template mesh (see _prepare_template).
 var _last_dt := 1.0 / 60.0
 var _started := false
 
 
-## rings: [[altura, semieje x, semieje z, centro z], ...] de la cintura hacia abajo.
-## band_rows: cuántas filas inferiores llevan el color del borde.
+## rings: [[height, semi-axis x, semi-axis z, center z], ...] from the waist down.
+## band_rows: how many bottom rows get the hem color.
 func setup(p_skeleton: Skeleton3D, rings: Array, color: Color, hem_color: Color, template: Mesh = null,
 		colors := {}, band_rows := 2) -> void:
 	body_skeleton = p_skeleton
@@ -71,11 +71,11 @@ func setup(p_skeleton: Skeleton3D, rings: Array, color: Color, hem_color: Color,
 	for r in _rings:
 		for s in SEGMENTS:
 			var i := r * SEGMENTS + s
-			_add_edge(i, r * SEGMENTS + (s + 1) % SEGMENTS, AROUND_SLACK)  # alrededor
+			_add_edge(i, r * SEGMENTS + (s + 1) % SEGMENTS, AROUND_SLACK)  # around
 			if r + 1 < _rings:
-				_add_edge(i, i + SEGMENTS)                     # hacia abajo
+				_add_edge(i, i + SEGMENTS)                     # downward
 			if r + 2 < _rings:
-				_add_edge(i, i + 2 * SEGMENTS)                 # rigidez al doblarse
+				_add_edge(i, i + 2 * SEGMENTS)                 # bending stiffness
 			if r + 1 < _rings:
 				_add_edge(i, (r + 1) * SEGMENTS + (s + 1) % SEGMENTS)  # diagonal
 	for r in _rings - 1:
@@ -88,7 +88,7 @@ func setup(p_skeleton: Skeleton3D, rings: Array, color: Color, hem_color: Color,
 	_target.resize(_rest.size())
 
 	top_level = true
-	process_priority = 100  # Después de que la animación mueva el esqueleto.
+	process_priority = 100  # After the animation moves the skeleton.
 	var mat := StandardMaterial3D.new()
 	mat.vertex_color_use_as_albedo = true
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
@@ -100,12 +100,12 @@ func setup(p_skeleton: Skeleton3D, rings: Array, color: Color, hem_color: Color,
 		_prepare_template(template, colors)
 
 
-## Para cada vértice de la malla modelo: entre qué partículas de la tela cae (por su UV)
-## y su desplazamiento y normal medidos en el marco local de la tela en reposo.
+## For each vertex of the template mesh: which cloth particles it falls between (by its UV)
+## and its offset and normal measured in the local frame of the cloth at rest.
 func _prepare_template(template: Mesh, colors: Dictionary) -> void:
 	var frames := _grid_frames(_rest)
-	# La altura de la UV debe ir de la cintura (0) al borde (1); si viene al revés, se gira.
-	# Se mira en toda la falda a la vez: una sola superficie (p. ej. el borde) no basta.
+	# The UV height must go from the waist (0) to the hem (1); if it comes reversed, it's flipped.
+	# The whole skirt is checked at once: a single surface (e.g. the trim) is not enough.
 	var top_y := -INF
 	var flip := false
 	for surface in template.get_surface_count():
@@ -148,7 +148,7 @@ func _prepare_template(template: Mesh, colors: Dictionary) -> void:
 		})
 
 
-## Las 4 partículas que rodean el punto (u alrededor 0..1, v cintura 0 .. borde 1) y sus pesos.
+## The 4 particles around the point (u around 0..1, v waist 0 .. hem 1) and their weights.
 func _cell(u: float, v: float) -> Array:
 	var gu := fposmod(u, 1.0) * SEGMENTS
 	var gv := clampf(v, 0.0, 1.0) * (_rings - 1)
@@ -164,7 +164,7 @@ func _cell(u: float, v: float) -> Array:
 	]
 
 
-## Marco local de cada partícula: normal hacia fuera, tangente alrededor y tangente hacia abajo.
+## Local frame of each particle: outward normal, tangent around and tangent downward.
 func _grid_frames(points: PackedVector3Array) -> Array:
 	var normals := PackedVector3Array()
 	var arounds := PackedVector3Array()
@@ -190,7 +190,7 @@ func _grid_frames(points: PackedVector3Array) -> Array:
 	return [normals, arounds, downs]
 
 
-## Punto y marco ortonormal (punto, normal, alrededor, abajo) mezclando 4 partículas.
+## Point and orthonormal frame (point, normal, around, down) blending 4 particles.
 func _blend_frame(points: PackedVector3Array, frames: Array, corners: PackedInt32Array,
 		weights: PackedFloat32Array, offset := 0) -> Array:
 	var p := Vector3.ZERO
@@ -222,8 +222,8 @@ func _add_edge(a: int, b: int, slack := 1.0) -> void:
 	_edge_slack.append(slack)
 
 
-## Pose ideal: sobre todo la pelvis; las piernas solo la arrastran un poco
-## (el resto lo hacen las colisiones), como una túnica que cuelga.
+## Ideal pose: mostly the pelvis; the legs only drag it a little
+## (the collisions do the rest), like a hanging tunic.
 func _skirt_weights(p: Vector3, t: float) -> Dictionary:
 	var left := smoothstep(-0.1, 0.1, p.x)
 	var legs := 0.7 * smoothstep(0.0, 0.5, t)
@@ -243,8 +243,8 @@ func _process(delta: float) -> void:
 	_update_targets()
 	if not _started or _pos[0].distance_to(_target[0]) > 1.0:
 		_reset()
-	# Un paso por fotograma, con el tiempo real del fotograma: si la pantalla va a
-	# 120 Hz la tela se mueve en cada uno y no a saltos.
+	# One step per frame, with the frame's real time: if the screen runs at
+	# 120 Hz the cloth moves on each one and not in jumps.
 	_simulate(clampf(delta, MIN_STEP, MAX_STEP))
 	_rebuild_mesh()
 
@@ -276,14 +276,14 @@ func _reset() -> void:
 func _simulate(dt: float) -> void:
 	var count := _pos.size()
 	var gravity_step := GRAVITY * dt * dt
-	# Verlet con paso variable: la velocidad se reescala por dt / dt anterior.
+	# Verlet with a variable step: the velocity is rescaled by dt / previous dt.
 	var carry := pow(DAMPING, dt * 60.0) * (dt / _last_dt)
 	_last_dt = dt
 	for i in count:
 		var p := _pos[i]
 		_pos[i] = p + (p - _prev[i]) * carry + gravity_step
 		_prev[i] = p
-	var rate := dt * 60.0  # La fuerza hacia la pose ideal no depende de los fps.
+	var rate := dt * 60.0  # The pull toward the ideal pose doesn't depend on fps.
 
 	var capsules := []
 	for c in CAPSULES:
@@ -292,13 +292,13 @@ func _simulate(dt: float) -> void:
 				float(c[2]) + THICKNESS])
 
 	for iteration in ITERATIONS:
-		# La cintura va pegada al cuerpo.
+		# The waist is stuck to the body.
 		for s in SEGMENTS:
 			_pos[s] = _target[s]
-		# Mantener la forma de la túnica.
+		# Keep the tunic's shape.
 		for i in range(SEGMENTS, count):
 			_pos[i] += (_target[i] - _pos[i]) * (1.0 - pow(1.0 - _stiff[i], rate))
-		# Distancias entre partículas (la tela no se estira).
+		# Distances between particles (the cloth doesn't stretch).
 		for e in _edge_len.size():
 			var a := _edges[e * 2]
 			var b := _edges[e * 2 + 1]
@@ -317,8 +317,8 @@ func _simulate(dt: float) -> void:
 			else:
 				_pos[a] += fix * 0.5
 				_pos[b] -= fix * 0.5
-		# No alejarse demasiado de la pose ideal y, al final (manda sobre todo lo demás),
-		# empujar fuera de piernas y cadera.
+		# Don't stray too far from the ideal pose and, at the end (overrides everything else),
+		# push out of the legs and hips.
 		for i in range(SEGMENTS, count):
 			var p := _pos[i]
 			var drift := p - _target[i]

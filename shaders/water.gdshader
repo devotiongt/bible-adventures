@@ -1,4 +1,4 @@
-// Mar: olas suaves, color según profundidad, espuma en la orilla y brillos.
+// Sea: gentle waves, color by depth, foam at the shore and glints.
 shader_type spatial;
 render_mode blend_mix, cull_back, depth_draw_opaque, specular_schlick_ggx;
 
@@ -34,7 +34,7 @@ void vertex() {
 }
 
 void fragment() {
-	// Profundidad del agua: distancia entre la superficie y lo que hay debajo.
+	// Water depth: distance between the surface and what's below it.
 	float raw = texture(depth_tex, SCREEN_UV).r;
 	vec4 view = INV_PROJECTION_MATRIX * vec4(SCREEN_UV * 2.0 - 1.0, raw, 1.0);
 	view.xyz /= view.w;
@@ -49,7 +49,7 @@ void fragment() {
 	float foam = step(0.55, edge * (0.55 + 0.5 * n)) + step(0.92, edge * pulse) * 0.6;
 	foam = clamp(foam, 0.0, 1.0);
 
-	// Brillos que se mueven en la superficie.
+	// Glints moving on the surface.
 	vec2 p = world_pos.xz * 0.8;
 	float nx = noise(p + vec2(TIME * 0.5, 0.0)) - noise(p + vec2(0.0, TIME * 0.45));
 	float nz = noise(p * 1.3 - vec2(TIME * 0.3)) - noise(p * 1.1 + vec2(TIME * 0.35));

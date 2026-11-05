@@ -1,11 +1,11 @@
-// Plantas del estilo de la referencia (árboles, matas, flores): color por vértice, balanceo con el
-// viento según la altura y algo de luz que atraviesa las hojas.
+// Plants in the reference style (trees, shrubs, flowers): per-vertex color, wind sway
+// based on height and some light passing through the leaves.
 shader_type spatial;
 render_mode cull_disabled;
 
 uniform float wind_strength = 0.04;
 uniform float wind_speed = 1.3;
-uniform float sway_height = 1.0; // Altura local a la que el balanceo es completo.
+uniform float sway_height = 1.0; // Local height at which the sway is full.
 uniform float roughness = 0.9;
 
 void vertex() {

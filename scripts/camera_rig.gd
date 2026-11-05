@@ -1,7 +1,7 @@
 extends Node3D
-## Cámara de seguimiento en vista elevada (estilo Animal Crossing).
-## Q/R o los gatillos del mando la giran en pasos de 45°, la rueda acerca o aleja,
-## y arrastrar con el botón derecho la gira libremente.
+## Follow camera with an elevated view (Animal Crossing style).
+## Q/R or the gamepad triggers rotate it in 45° steps, the wheel zooms in or out,
+## and dragging with the right button rotates it freely.
 
 const MIN_DISTANCE := 7.0
 const MAX_DISTANCE := 24.0
@@ -14,7 +14,7 @@ var _yaw := 0.0
 
 
 func _ready() -> void:
-	# Se mueve cada fotograma (no en la física): sin interpolación de física.
+	# Moves every frame (not in physics): no physics interpolation.
 	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	camera = Camera3D.new()
 	camera.fov = 45.0
@@ -32,13 +32,13 @@ func set_yaw(yaw: float) -> void:
 
 func _process(delta: float) -> void:
 	if target:
-		# Posición suavizada (interpolación de física): si no, con pocos fotogramas por segundo el
-		# personaje tiembla respecto a la cámara.
+		# Smoothed position (physics interpolation): otherwise, at low frame rates the
+		# character jitters relative to the camera.
 		var target_pos := target.get_global_transform_interpolated().origin
 		global_position = global_position.lerp(target_pos, 1.0 - exp(-8.0 * delta))
-	if Input.is_action_just_pressed("camara_izq"):
+	if Input.is_action_just_pressed("camera_left"):
 		_yaw += PI / 4.0
-	if Input.is_action_just_pressed("camara_der"):
+	if Input.is_action_just_pressed("camera_right"):
 		_yaw -= PI / 4.0
 	rotation.y = lerp_angle(rotation.y, _yaw, 1.0 - exp(-10.0 * delta))
 	var pitch := deg_to_rad(pitch_deg)

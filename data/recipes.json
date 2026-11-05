@@ -1,0 +1,9 @@
+[
+	{"result": "plank", "amount": 2, "ingredients": {"wood": 1}},
+	{"result": "beam", "amount": 1, "ingredients": {"wood": 2}},
+	{"result": "peg", "amount": 4, "ingredients": {"wood": 1}},
+	{"result": "rope", "amount": 1, "ingredients": {"fiber": 3}},
+	{"result": "hammer", "amount": 1, "ingredients": {"wood": 1, "stone": 2, "rope": 1}},
+	{"result": "axe", "amount": 1, "ingredients": {"wood": 2, "stone": 2, "rope": 1}},
+	{"result": "bucket", "amount": 1, "ingredients": {"plank": 3, "rope": 1}}
+]

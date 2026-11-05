@@ -1,31 +1,31 @@
 extends StaticBody3D
-## Recurso recolectable: árbol, roca, juncos (fibra) o pozo de brea.
-## Se golpea varias veces con "interactuar", suelta materiales y reaparece con el tiempo.
+## Gatherable resource: tree, rock, reeds (fiber) or pitch pit.
+## It is struck several times with "interact", drops materials and respawns over time.
 
 const LowPoly := preload("res://scripts/lowpoly.gd")
 const Effects := preload("res://scripts/effects.gd")
 const Stylized := preload("res://scripts/stylized.gd")
 
-## Color y altura de las partículas al golpear cada recurso.
+## Color and height of the particles when striking each resource.
 const PARTICLES := {
-	"arbol": [Color("c99a62"), 1.0],
-	"roca": [Color("9a9a95"), 0.5],
-	"arbusto": [Color("9db55a"), 0.6],
-	"brea": [Color("1a1310"), 0.2],
+	"tree": [Color("c99a62"), 1.0],
+	"rock": [Color("9a9a95"), 0.5],
+	"bush": [Color("9db55a"), 0.6],
+	"pitch": [Color("1a1310"), 0.2],
 }
 
 const KINDS := {
-	"arbol": {"accion": "Talar árbol", "golpes": 4, "herramienta": "hacha", "golpes_herramienta": 2,
-		"suelta": "madera", "cantidad": 3, "reaparece": 45.0, "radio": 0.4},
-	"roca": {"accion": "Picar roca", "golpes": 3, "suelta": "piedra", "cantidad": 2,
-		"reaparece": 60.0, "radio": 0.8},
-	"arbusto": {"accion": "Recoger fibra de juncos", "golpes": 1, "suelta": "fibra", "cantidad": 2,
-		"reaparece": 25.0, "radio": 0.5},
-	"brea": {"accion": "Sacar brea", "golpes": 2, "requiere": "cubo", "suelta": "brea", "cantidad": 2,
-		"reaparece": 35.0, "radio": 1.1},
+	"tree": {"action": "Chop tree", "hits": 4, "tool": "axe", "tool_hits": 2,
+		"drops": "wood", "amount": 3, "respawn": 45.0, "radius": 0.4},
+	"rock": {"action": "Break rock", "hits": 3, "drops": "stone", "amount": 2,
+		"respawn": 60.0, "radius": 0.8},
+	"bush": {"action": "Gather reed fiber", "hits": 1, "drops": "fiber", "amount": 2,
+		"respawn": 25.0, "radius": 0.5},
+	"pitch": {"action": "Draw pitch", "hits": 2, "requires": "bucket", "drops": "pitch", "amount": 2,
+		"respawn": 35.0, "radius": 1.1},
 }
 
-var kind := "arbol"
+var kind := "tree"
 var config: Dictionary
 var hits := 0
 var depleted := false
@@ -37,47 +37,47 @@ func setup(p_kind: String, rng: RandomNumberGenerator) -> void:
 	kind = p_kind
 	config = KINDS[kind]
 	name = kind.capitalize()
-	add_to_group("interactuable")
+	add_to_group("interactable")
 	visual = Node3D.new()
 	add_child(visual)
 	match kind:
-		"arbol":
+		"tree":
 			_build_tree(rng)
-		"roca":
+		"rock":
 			_build_rock(rng)
-		"arbusto":
+		"bush":
 			_build_reeds(rng)
-		"brea":
+		"pitch":
 			_build_pitch(rng)
 
 
-# --- Interacción (la usa el jugador) ------------------------------------------
+# --- Interaction (used by the player) -----------------------------------------
 
 func interact_distance(from: Vector3) -> float:
 	if depleted:
 		return INF
 	var d := Vector2(from.x - global_position.x, from.z - global_position.z).length()
-	return d - float(config["radio"]) * scale.x
+	return d - float(config["radius"]) * scale.x
 
 
 func get_prompt() -> String:
-	if config.has("requiere") and not Game.has_item(config["requiere"]):
-		return "Necesitas un %s" % Game.item_name(config["requiere"]).to_lower()
-	return config["accion"]
+	if config.has("requires") and not Game.has_item(config["requires"]):
+		return "You need a %s" % Game.item_name(config["requires"]).to_lower()
+	return config["action"]
 
 
 func interact(_player: Node) -> void:
 	if depleted:
 		return
-	if config.has("requiere") and not Game.has_item(config["requiere"]):
-		Game.notify.emit("Necesitas un %s para esto. Fabrícalo con C." % Game.item_name(config["requiere"]).to_lower())
+	if config.has("requires") and not Game.has_item(config["requires"]):
+		Game.notify.emit("You need a %s for this. Craft it with C." % Game.item_name(config["requires"]).to_lower())
 		return
 	hits += 1
 	var fx: Array = PARTICLES[kind]
 	Effects.burst(get_parent(), global_position + Vector3(0, fx[1], 0), fx[0], 10, 0.08, 3.2)
-	var needed := int(config["golpes"])
-	if config.has("herramienta") and Game.has_item(config["herramienta"]):
-		needed = int(config["golpes_herramienta"])
+	var needed := int(config["hits"])
+	if config.has("tool") and Game.has_item(config["tool"]):
+		needed = int(config["tool_hits"])
 	if hits >= needed:
 		hits = 0
 		_harvest()
@@ -87,19 +87,19 @@ func interact(_player: Node) -> void:
 
 func _harvest() -> void:
 	depleted = true
-	var amount := int(config["cantidad"])
-	Game.add(config["suelta"], amount)
-	Game.notify.emit("+%d %s" % [amount, Game.item_name(config["suelta"])])
+	var amount := int(config["amount"])
+	Game.add(config["drops"], amount)
+	Game.notify.emit("+%d %s" % [amount, Game.item_name(config["drops"])])
 	if _collision:
 		_collision.set_deferred("disabled", true)
 	var t := create_tween()
-	if kind == "arbol":
+	if kind == "tree":
 		Effects.burst(get_parent(), global_position + Vector3(0, 3.0, 0), Color("6e9e3e"), 24, 0.14, 2.0, 2.5, 1.8)
-		# El árbol cae hacia un lado antes de desaparecer.
+		# The tree falls to one side before disappearing.
 		t.tween_property(visual, "rotation:z", deg_to_rad(85), 0.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	t.tween_property(visual, "scale", Vector3.ONE * 0.01, 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 	t.tween_callback(func() -> void: visual.visible = false)
-	get_tree().create_timer(float(config["reaparece"])).timeout.connect(_respawn)
+	get_tree().create_timer(float(config["respawn"])).timeout.connect(_respawn)
 
 
 func _respawn() -> void:
@@ -119,7 +119,7 @@ func _shake() -> void:
 	t.tween_property(visual, "rotation:z", 0.0, 0.08)
 
 
-# --- Modelos ------------------------------------------------------------------
+# --- Models -------------------------------------------------------------------
 
 func _add_collision(shape: Shape3D, offset: Vector3) -> void:
 	_collision = CollisionShape3D.new()
@@ -129,11 +129,11 @@ func _add_collision(shape: Shape3D, offset: Vector3) -> void:
 
 
 func _build_tree(rng: RandomNumberGenerator) -> void:
-	# Pinos (la "madera de gofer") y árboles redondos, como en la referencia.
+	# Pines (the "gopher wood") and round trees, as in the reference.
 	var tree := Stylized.pine(rng) if rng.randf() < 0.45 else Stylized.round_tree(rng)
 	tree.scale = Vector3.ONE * rng.randf_range(0.9, 1.15)
 	visual.add_child(tree)
-	# El tocón queda siempre, el resto cae al talarlo.
+	# The stump always stays; the rest falls when chopped.
 	LowPoly.cylinder(self, 0.2, 0.26, 0.28, 8, Color("6b4a33"), Vector3(0, 0.12, 0))
 	LowPoly.cylinder(self, 0.19, 0.19, 0.02, 8, Color("c9a77c"), Vector3(0, 0.27, 0))
 	var shape := CylinderShape3D.new()

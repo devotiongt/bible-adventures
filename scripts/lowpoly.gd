@@ -1,5 +1,5 @@
 extends RefCounted
-## Utilidades para crear piezas low poly con sombreado plano (caras facetadas).
+## Helpers for building low poly pieces with flat shading (faceted faces).
 
 static var _materials: Dictionary = {}
 
@@ -16,7 +16,7 @@ static func material(color: Color) -> StandardMaterial3D:
 	return _materials[key]
 
 
-## Convierte una malla en otra sin vértices compartidos, con una normal por cara.
+## Turns a mesh into one with no shared vertices, with one normal per face.
 static func flat(src: Mesh) -> ArrayMesh:
 	var arrays := src.surface_get_arrays(0)
 	var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
@@ -51,7 +51,7 @@ static func flat(src: Mesh) -> ArrayMesh:
 	return mesh
 
 
-## Normal de un triángulo con el orden de Godot (cara frontal en sentido horario).
+## Normal of a triangle with Godot's winding (front face clockwise).
 static func face_normal(a: Vector3, b: Vector3, c: Vector3) -> Vector3:
 	var n := (c - a).cross(b - a)
 	if n.length_squared() < 1e-10:
@@ -98,7 +98,7 @@ static func sphere(parent: Node3D, radius: float, height: float, sides: int, rin
 	return part(parent, m, color, pos)
 
 
-## Pequeña variación de tono para que no todo se vea idéntico.
+## Small tone variation so not everything looks identical.
 static func vary(color: Color, rng: RandomNumberGenerator, amount := 0.06) -> Color:
 	return Color(
 		clampf(color.r + rng.randf_range(-amount, amount), 0.0, 1.0),

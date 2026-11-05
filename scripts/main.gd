@@ -1,6 +1,6 @@
 extends Node3D
-## Escena principal del capítulo 1: monta el ambiente, la isla, el arca, a Noé,
-## la cámara y la interfaz.
+## Main scene of chapter 1: sets up the environment, the island, the ark, Noah,
+## the camera and the interface.
 
 const World := preload("res://scripts/world.gd")
 const ArkSite := preload("res://scripts/ark_site.gd")
@@ -9,18 +9,18 @@ const CameraRig := preload("res://scripts/camera_rig.gd")
 const Hud := preload("res://scripts/hud.gd")
 const Debug := preload("res://scripts/debug.gd")
 const Animal := preload("res://scripts/animal.gd")
-const Aldeano := preload("res://scripts/aldeano.gd")
+const Villager := preload("res://scripts/villager.gd")
 
 
 func _ready() -> void:
 	_setup_environment()
 
 	var world := World.new()
-	world.name = "Isla"
+	world.name = "Island"
 	add_child(world)
 
 	var ark := ArkSite.new()
-	ark.name = "Arca"
+	ark.name = "Ark"
 	ark.position = world.ark_position()
 	add_child(ark)
 
@@ -28,7 +28,7 @@ func _ready() -> void:
 	_spawn_villagers(world)
 
 	var player := Player.new()
-	player.name = "Noe"
+	player.name = "Noah"
 	player.world = world
 	player.position = world.spawn_point()
 	if Game.args.has("pos"):
@@ -39,10 +39,10 @@ func _ready() -> void:
 	player.add_child(_floating_motes())
 
 	var rig := CameraRig.new()
-	rig.name = "Camara"
+	rig.name = "Camera"
 	rig.target = player
-	if Game.args.has("camara"):
-		rig.set_yaw(deg_to_rad(float(Game.args["camara"])))
+	if Game.args.has("camera"):
+		rig.set_yaw(deg_to_rad(float(Game.args["camera"])))
 	if Game.args.has("zoom"):
 		rig.distance = float(Game.args["zoom"])
 	rig.position = player.position
@@ -52,7 +52,7 @@ func _ready() -> void:
 	var hud := Hud.new()
 	hud.layer = 5
 	hud.player = player
-	hud.visible = not Game.args.has("sin_hud")      # --sin_hud: capturas limpias, para referencias.
+	hud.visible = not Game.args.has("no_hud")      # --no_hud: clean screenshots, for references.
 	add_child(hud)
 
 	add_child(Debug.new())
@@ -72,7 +72,7 @@ func _setup_environment() -> void:
 	env.background_mode = Environment.BG_SKY
 	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	# Luz de media mañana, cálida: el ambiente algo dorado y las sombras con un toque azul del cielo.
+	# Warm mid-morning light: the ambient a little golden and the shadows with a touch of sky blue.
 	env.ambient_light_color = Color("f6e3c8")
 	env.ambient_light_sky_contribution = 0.5
 	env.ambient_light_energy = 0.8
@@ -85,7 +85,7 @@ func _setup_environment() -> void:
 	env.glow_intensity = 0.15
 	env.glow_bloom = 0.06
 	env.glow_hdr_threshold = 1.4
-	# Neblina de lejanía: lo cercano nítido y las colinas y el bosque del fondo se aclaran hacia el cielo.
+	# Distance haze: what's near stays sharp, and the hills and forest in the back fade toward the sky.
 	env.fog_enabled = true
 	env.fog_light_color = Color("efe2cc")
 	env.fog_sun_scatter = 0.25
@@ -96,15 +96,15 @@ func _setup_environment() -> void:
 	env.fog_depth_begin = 25.0
 	env.fog_depth_end = 140.0
 	env.fog_mode = Environment.FOG_MODE_DEPTH
-	# Colores suaves (no chillones): menos saturación que antes y contraste leve.
+	# Soft colors (not garish): less saturation than before and mild contrast.
 	env.adjustment_enabled = true
 	env.adjustment_saturation = 1.04
 	env.adjustment_contrast = 1.06
 	env.adjustment_brightness = 1.02
 
-	if Game.args.has("sin_glow"):
+	if Game.args.has("no_glow"):
 		env.glow_enabled = false
-	if Game.args.has("sin_ssao"):
+	if Game.args.has("no_ssao"):
 		env.ssao_enabled = false
 
 	var world_env := WorldEnvironment.new()
@@ -112,7 +112,7 @@ func _setup_environment() -> void:
 	add_child(world_env)
 
 	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-36, -50, 0)      # Más bajo: sombras algo más largas.
+	sun.rotation_degrees = Vector3(-36, -50, 0)      # Lower: somewhat longer shadows.
 	sun.light_color = Color("ffdcae")
 	sun.light_energy = 1.35
 	sun.shadow_enabled = true
@@ -121,9 +121,9 @@ func _setup_environment() -> void:
 	sun.directional_shadow_blend_splits = true
 	add_child(sun)
 
-	# Efecto diorama encima del 3D y debajo de la interfaz: solo una viñeta y un desenfoque leve en
-	# los bordes (la referencia de estilo es nítida).
-	if not Game.args.has("sin_diorama"):
+	# Diorama effect above the 3D and below the interface: just a vignette and a slight blur at
+	# the edges (the style reference is sharp).
+	if not Game.args.has("no_diorama"):
 		var post := CanvasLayer.new()
 		post.layer = 0
 		var rect := ColorRect.new()
@@ -136,7 +136,7 @@ func _setup_environment() -> void:
 		add_child(post)
 
 
-## Motas de polen y polvo que flotan despacio alrededor de Noé, a contraluz: dan aire y profundidad.
+## Pollen and dust motes that float slowly around Noah, backlit: they add air and depth.
 func _floating_motes() -> CPUParticles3D:
 	var p := CPUParticles3D.new()
 	var mesh := QuadMesh.new()
@@ -170,12 +170,12 @@ func _floating_motes() -> CPUParticles3D:
 	return p
 
 
-## Animales de la aldea, cada pareja en su sitio (data/aldea.json, "animales"): en los corrales, en
-## los prados y en el bosque.
+## Village animals, each pair in its place (data/village.json, "animals"): in the pens, in
+## the meadows and in the forest.
 func _spawn_animals(world: Node3D) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 99
-	for entry in world.data["animales"]:
+	for entry in world.data["animals"]:
 		var pair := [entry[0], Vector3(entry[1], 0, entry[2])]
 		for i in 2:
 			var animal := Animal.new()
@@ -190,26 +190,26 @@ func _spawn_animals(world: Node3D) -> void:
 			add_child(animal)
 
 
-## La familia de Noé y los aldeanos (data/aldea.json, "aldeanos"): cada uno con sus puntos, en
-## coordenadas del patio de su casa (x a lo ancho, y hacia la fachada).
+## Noah's family and the villagers (data/village.json, "villagers"): each with their points, in
+## coordinates of their house's yard (x across the width, y toward the facade).
 func _spawn_villagers(world: Node3D) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 21
-	for v in world.data.get("aldeanos", []):
+	for v in world.data.get("villagers", []):
 		var house: Dictionary = {}
-		for h in world.data["casas"]:
-			if h["id"] == v["casa"]:
+		for h in world.data["houses"]:
+			if h["id"] == v["house"]:
 				house = h
-		var npc := Aldeano.new()
+		var npc := Villager.new()
 		npc.name = v["id"]
 		npc.world = world
-		npc.model_path = v["modelo"]
-		npc.prefix = v["prefijo"]
-		npc.natural_walk = float(v["velocidad"])
-		npc.stays = v["acciones"]
-		npc.albedo_tint = float(v.get("brillo", 0.74))
+		npc.model_path = v["model"]
+		npc.prefix = v["prefix"]
+		npc.natural_walk = float(v["speed"])
+		npc.stays = v["actions"]
+		npc.albedo_tint = float(v.get("shine", 0.74))
 		npc.rng.seed = rng.randi()
-		for local in v["puntos"]:
+		for local in v["points"]:
 			var p: Vector2 = world.house_point(house, Vector2(local[0], local[1]))
 			npc.points.append(Vector3(p.x, world.height_at(p.x, p.y), p.y))
 		npc.position = npc.points[0]

@@ -1,10 +1,10 @@
-// Madera procedural para el arca: tablones con juntas, veta y variación de tono.
+// Procedural wood for the ark: planks with seams, grain and tone variation.
 shader_type spatial;
 
 uniform vec3 base_color : source_color = vec3(0.64, 0.44, 0.28);
 uniform float plank_width = 0.32;
 uniform float plank_length = 2.6;
-// Dibuja juntas de tablones. Desactivar en modelos que ya tienen tablones de verdad.
+// Draws plank seams. Turn off on models that already have real planks.
 uniform bool seams = true;
 
 varying vec3 local_pos;
@@ -50,7 +50,7 @@ void fragment() {
 		color = base_color * (0.82 + plank_id * 0.3) * (0.82 + grain * 0.32);
 		color *= mix(0.45, 1.0, seam * joint);
 	} else {
-		// La variación por tablón viene en el color de vértice del modelo.
+		// The per-plank variation comes in the model's vertex color.
 		color = base_color * COLOR.rgb * (0.85 + grain * 0.3);
 	}
 

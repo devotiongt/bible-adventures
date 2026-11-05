@@ -2,5 +2,5 @@
 *.import
 export/
 .DS_Store
-capturas/
-herramientas/blender/generados/
+screenshots/
+tools/blender/generated/

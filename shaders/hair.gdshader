@@ -1,4 +1,4 @@
-// Pelo y barba canosos: usa la textura original solo para la forma y el relieve.
+// Gray hair and beard: uses the original texture only for the shape and relief.
 shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque;
 

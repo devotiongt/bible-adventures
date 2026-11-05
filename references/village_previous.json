@@ -1,0 +1,753 @@
+{
+	"_note": "Noah's village (references/noah_village_sketch.jpg, docs/DESIGN_CHAPTER1.md), placed by hand. The village grows along the main street (from the valley to the ark's hill); the plaza is the widening where it crosses the river road. Meters; x toward the east, z toward the south (north = -z).",
+	"valley": {
+		"_note": "Valley floor: ellipse with soft undulations; outside it the hills rise, except at the exit of the road to the valley.",
+		"center": [
+			0,
+			0
+		],
+		"semi_axes": [
+			48,
+			56
+		],
+		"waves": [
+			[
+				2,
+				0.04,
+				0.6
+			],
+			[
+				3,
+				0.035,
+				2.1
+			],
+			[
+				5,
+				0.02,
+				4.0
+			]
+		],
+		"hill_height": 9.0,
+		"hill_width": 20.0,
+		"exit": [
+			17,
+			56
+		],
+		"exit_width": 9.0
+	},
+	"river": {
+		"points": [
+			[
+				-44,
+				-80
+			],
+			[
+				-41,
+				-50
+			],
+			[
+				-38,
+				-26
+			],
+			[
+				-36,
+				-8
+			],
+			[
+				-34,
+				7
+			],
+			[
+				-31,
+				22
+			],
+			[
+				-27,
+				38
+			],
+			[
+				-21,
+				56
+			],
+			[
+				-15,
+				82
+			]
+		],
+		"width": 4.5,
+		"depth": 1.3
+	},
+	"bridge": {
+		"center": [
+			-34.0,
+			7.0
+		],
+		"length": 9.0,
+		"width": 2.6
+	},
+	"plaza": {
+		"center": [
+			0.5,
+			2.0
+		],
+		"_outline": "Irregular widening of the street (polygon, clockwise).",
+		"outline": [
+			[
+				-6.5,
+				0.5
+			],
+			[
+				-3.5,
+				-3.0
+			],
+			[
+				2.0,
+				-4.0
+			],
+			[
+				6.5,
+				-1.5
+			],
+			[
+				7.0,
+				3.5
+			],
+			[
+				4.0,
+				7.5
+			],
+			[
+				-1.5,
+				8.0
+			],
+			[
+				-5.5,
+				5.0
+			]
+		],
+		"well": [
+			-3.0,
+			4.2
+		],
+		"campfire": [
+			4.2,
+			3.6
+		],
+		"benches": 2,
+		"_tents": "Market at the edge of the plaza, with the counter facing inward. [x, z, generated piece]",
+		"tents": [
+			[
+				-3.6,
+				-1.2,
+				"cloth_stall2"
+			],
+			[
+				3.4,
+				-2.6,
+				"cloth_stall"
+			],
+			[
+				6.0,
+				1.6,
+				"fruit_stall"
+			]
+		],
+		"tables": [
+			[
+				4.4,
+				6.6
+			]
+		]
+	},
+	"ark": {
+		"center": [
+			-8,
+			-36
+		],
+		"semi_axes": [
+			15,
+			10
+		],
+		"height": 10.0,
+		"hill": 22.0
+	},
+	"houses": [
+		{
+			"id": "noah",
+			"model": "NoahHouse",
+			"pos": [
+				-11.5,
+				-13.0
+			],
+			"yard": 0.4,
+			"rotation": 0
+		},
+		{
+			"id": "shem",
+			"model": "HouseB",
+			"pos": [
+				-9.5,
+				-4.5
+			],
+			"yard": 0.4,
+			"rotation": 4
+		},
+		{
+			"id": "ham",
+			"model": "HouseA",
+			"pos": [
+				4.5,
+				-8.0
+			],
+			"yard": 0.8,
+			"rotation": -3
+		},
+		{
+			"id": "shepherd_neighbor",
+			"model": "HouseB",
+			"pos": [
+				9.5,
+				-11.5
+			],
+			"yard": 0.4,
+			"rotation": 5
+		},
+		{
+			"id": "potter_neighbor",
+			"model": "HouseA",
+			"pos": [
+				11.5,
+				2.5
+			],
+			"yard": 0.8,
+			"stall": true,
+			"rotation": -4
+		},
+		{
+			"id": "weaver_neighbor",
+			"model": "HouseC",
+			"pos": [
+				11.0,
+				14.5
+			],
+			"yard": 0.8,
+			"rotation": 3
+		},
+		{
+			"id": "japheth",
+			"model": "HouseC",
+			"pos": [
+				-3.5,
+				13.5
+			],
+			"yard": 0.8,
+			"rotation": -4
+		},
+		{
+			"id": "baker_neighbor",
+			"model": "HouseA",
+			"pos": [
+				2.0,
+				21.0
+			],
+			"yard": 0.8,
+			"rotation": 6
+		}
+	],
+	"paths": [
+		{
+			"name": "main street",
+			"type": "street",
+			"width": 2.8,
+			"points": [
+				[
+					18,
+					64
+				],
+				[
+					16.5,
+					50
+				],
+				[
+					12.5,
+					36
+				],
+				[
+					8.5,
+					24
+				],
+				[
+					4.5,
+					14
+				],
+				[
+					1.5,
+					5
+				],
+				[
+					-0.5,
+					-3
+				],
+				[
+					-2.5,
+					-9
+				],
+				[
+					-4.5,
+					-15.5
+				],
+				[
+					-1.5,
+					-19.5
+				],
+				[
+					-6.0,
+					-22.5
+				],
+				[
+					-3.5,
+					-25.5
+				],
+				[
+					-7.0,
+					-27.5
+				]
+			]
+		},
+		{
+			"name": "river road",
+			"type": "street",
+			"width": 2.2,
+			"points": [
+				[
+					-5.5,
+					2.5
+				],
+				[
+					-11,
+					4.0
+				],
+				[
+					-18,
+					5.5
+				],
+				[
+					-24,
+					6.5
+				],
+				[
+					-29,
+					7.0
+				],
+				[
+					-39,
+					7.2
+				],
+				[
+					-46,
+					9
+				]
+			]
+		},
+		{
+			"name": "forest alley",
+			"type": "alley",
+			"width": 1.6,
+			"points": [
+				[
+					4.0,
+					11.5
+				],
+				[
+					9,
+					9.5
+				],
+				[
+					15,
+					7.5
+				],
+				[
+					22,
+					5.0
+				],
+				[
+					28,
+					4.5
+				],
+				[
+					33,
+					5.0
+				]
+			]
+		},
+		{
+			"name": "quarry alley",
+			"type": "alley",
+			"width": 1.5,
+			"points": [
+				[
+					-1.5,
+					-6.5
+				],
+				[
+					3,
+					-10
+				],
+				[
+					8,
+					-14
+				],
+				[
+					12,
+					-18
+				],
+				[
+					15,
+					-22
+				]
+			]
+		},
+		{
+			"name": "west pen alley",
+			"type": "alley",
+			"width": 1.4,
+			"points": [
+				[
+					-13,
+					4.5
+				],
+				[
+					-16,
+					0
+				],
+				[
+					-18.5,
+					-5
+				],
+				[
+					-20,
+					-9.5
+				]
+			]
+		},
+		{
+			"name": "east pen trail",
+			"type": "trail",
+			"width": 1.0,
+			"points": [
+				[
+					16,
+					7.0
+				],
+				[
+					20,
+					2
+				],
+				[
+					24,
+					-2
+				],
+				[
+					27,
+					-4.5
+				]
+			]
+		},
+		{
+			"name": "south pen trail",
+			"type": "trail",
+			"width": 1.0,
+			"points": [
+				[
+					5.5,
+					17
+				],
+				[
+					0,
+					19
+				],
+				[
+					-6,
+					20.5
+				],
+				[
+					-11,
+					21.5
+				]
+			]
+		},
+		{
+			"name": "garden trail",
+			"type": "trail",
+			"width": 0.9,
+			"points": [
+				[
+					-19,
+					5.6
+				],
+				[
+					-21,
+					3.5
+				],
+				[
+					-22.5,
+					2.5
+				]
+			]
+		},
+		{
+			"name": "wheat field trail",
+			"type": "trail",
+			"width": 0.9,
+			"points": [
+				[
+					11.5,
+					32
+				],
+				[
+					15,
+					31
+				],
+				[
+					18,
+					30.5
+				]
+			]
+		}
+	],
+	"forest": [
+		{
+			"center": [
+				35,
+				-3
+			],
+			"radius": 7.5,
+			"trees": 10
+		},
+		{
+			"center": [
+				36,
+				13
+			],
+			"radius": 7.5,
+			"trees": 10
+		},
+		{
+			"center": [
+				33,
+				29
+			],
+			"radius": 6.5,
+			"trees": 8
+		},
+		{
+			"center": [
+				31,
+				-19
+			],
+			"radius": 5.5,
+			"trees": 6
+		}
+	],
+	"_dense_forest": "Strip along the east edge with decorative trees, behind the ones that get cut down.",
+	"dense_forest": {
+		"x_from": 38,
+		"z_from": -26,
+		"z_to": 40
+	},
+	"quarry": {
+		"center": [
+			16.5,
+			-26
+		],
+		"radius": 5.0,
+		"rocks": 6
+	},
+	"pitch": [
+		[
+			-24,
+			-27
+		],
+		[
+			10,
+			-41
+		],
+		[
+			-27,
+			27
+		]
+	],
+	"gardens": [
+		{
+			"center": [
+				-24,
+				-0.5
+			],
+			"size": [
+				10,
+				6
+			],
+			"rotation": 6,
+			"rows": 5
+		}
+	],
+	"fields": [
+		{
+			"center": [
+				23,
+				30
+			],
+			"size": [
+				11,
+				8
+			],
+			"rotation": -12,
+			"furrows": 5
+		}
+	],
+	"pens": [
+		{
+			"center": [
+				-21,
+				-13.5
+			],
+			"radius": 4.5
+		},
+		{
+			"center": [
+				-14.5,
+				22.5
+			],
+			"radius": 4.5
+		},
+		{
+			"center": [
+				29,
+				-7
+			],
+			"radius": 4.5
+		}
+	],
+	"shade_trees": [
+		{
+			"pos": [
+				-5.0,
+				3.0
+			],
+			"type": "olive",
+			"scale": 1.3
+		},
+		{
+			"pos": [
+				-15.5,
+				-9.0
+			],
+			"type": "round",
+			"scale": 1.0
+		},
+		{
+			"pos": [
+				14.5,
+				-6.0
+			],
+			"type": "round",
+			"scale": 0.9
+		},
+		{
+			"pos": [
+				-16,
+				9
+			],
+			"type": "round",
+			"scale": 1.0
+		},
+		{
+			"pos": [
+				16.5,
+				10.5
+			],
+			"type": "olive",
+			"scale": 0.9
+		},
+		{
+			"pos": [
+				-9,
+				17
+			],
+			"type": "pine",
+			"scale": 1.0
+		},
+		{
+			"pos": [
+				7.5,
+				27
+			],
+			"type": "round",
+			"scale": 1.0
+		},
+		{
+			"pos": [
+				-28,
+				-10
+			],
+			"type": "pine",
+			"scale": 1.1
+		},
+		{
+			"pos": [
+				-27,
+				15
+			],
+			"type": "round",
+			"scale": 0.9
+		},
+		{
+			"pos": [
+				-17,
+				-24
+			],
+			"type": "pine",
+			"scale": 1.0
+		},
+		{
+			"pos": [
+				3,
+				-22
+			],
+			"type": "round",
+			"scale": 1.0
+		},
+		{
+			"pos": [
+				19,
+				22
+			],
+			"type": "round",
+			"scale": 0.9
+		}
+	],
+	"_streets": "type: street (main, wide), alley (narrower, joins in a Y) or trail (almost erased, fades into the grass). Trails only exist where people really walk.",
+	"_walls": "Low adobe walls that close yards shared between houses of the same group (polylines).",
+	"walls": [
+		[
+			[
+				-6.6,
+				-9.0
+			],
+			[
+				-7.2,
+				-7.0
+			]
+		],
+		[
+			[
+				7.4,
+				-5.5
+			],
+			[
+				8.0,
+				-8.5
+			]
+		]
+	]
+}

@@ -1,4 +1,4 @@
-// Hojas, hierba y flores: textura con recorte alfa, viento y luz que atraviesa las hojas.
+// Leaves, grass and flowers: texture with alpha cutout, wind and light passing through the leaves.
 shader_type spatial;
 render_mode cull_disabled, depth_draw_opaque;
 
@@ -7,7 +7,7 @@ uniform vec4 albedo : source_color = vec4(1.0);
 uniform float alpha_cut = 0.35;
 uniform float wind_strength = 0.06;
 uniform float wind_speed = 1.3;
-uniform float sway_height = 4.0; // Altura local a la que el balanceo es completo.
+uniform float sway_height = 4.0; // Local height at which the sway is full.
 uniform float tint_variation = 0.12;
 
 float hash(vec2 p) {

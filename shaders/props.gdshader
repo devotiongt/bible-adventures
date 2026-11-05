@@ -1,22 +1,22 @@
-// Objetos de la aldea generados con IA (color pintado en los vértices). En las partes de madera
-// (tonos café-anaranjados) pone un café de madera común y una veta dibujada, de juguete: franjas suaves
-// y onduladas a lo largo de la pieza, algún nudo y un leve brillo en las aristas.
+// AI-generated village objects (color painted on the vertices). On the wooden parts
+// (orange-brown tones) it puts a shared wood brown and a drawn, toy-like grain: soft wavy
+// stripes along the piece, the odd knot and a faint shine on the edges.
 shader_type spatial;
 
-// Objetos pintados con mapa de materiales (herramientas/blender/pintar_materiales.py) traen una textura
-// con el color y, en el alfa, la marca de madera; los demás, el color en los vértices.
+// Objects painted with a material map (tools/blender/paint_materials.py) come with a texture
+// with the color and, in the alpha, the wood mark; the rest, the color on the vertices.
 uniform bool use_texture = false;
-// Piezas hechas por script: un color fijo por material (sin colores de vértice).
+// Pieces made by script: a fixed color per material (no vertex colors).
 uniform bool use_flat_color = false;
 uniform vec4 flat_color : source_color = vec4(1.0);
-uniform sampler2D albedo_tex : source_color, filter_linear;   // Sin mipmaps: no mezcla piezas vecinas.
-uniform float wood = 1.0;          // 0: sin veta (barro, tela, piedra); 1: veta donde el color es madera.
-// Café de la madera (de referencias/objetos_aldea.jpg). Del modelo solo se conserva cuánto más claro u
-// oscuro es cada trozo, así toda la madera de la aldea comparte el mismo tono.
+uniform sampler2D albedo_tex : source_color, filter_linear;   // No mipmaps: doesn't blend neighboring pieces.
+uniform float wood = 1.0;          // 0: no grain (clay, cloth, stone); 1: grain where the color is wood.
+// Wood brown (from references/village_objects.jpg). From the model only how much lighter or
+// darker each patch is gets kept, so all the wood in the village shares the same tone.
 uniform vec3 wood_color : source_color = vec3(0.60, 0.37, 0.22);
-uniform float grain_scale = 5.0;   // Franjas por metro, a lo ancho de la pieza.
-// Toldos a rayas: las caras marcadas con alfa 0 son tela; se alternan su color y el crema.
-// Alfa 0,7: mercancía de los puestos (barro, telas, fruta), sin veta de madera.
+uniform float grain_scale = 5.0;   // Stripes per meter, across the piece.
+// Striped awnings: faces marked with alpha 0 are cloth; their color alternates with cream.
+// Alpha 0.7: stall goods (clay, cloth, fruit), no wood grain.
 uniform vec3 stripe_cream : source_color = vec3(0.96, 0.92, 0.84);
 uniform float stripe_width = 0.34;
 
@@ -51,11 +51,11 @@ void vertex() {
 void fragment() {
 	vec4 src = use_texture ? texture(albedo_tex, UV) : (use_flat_color ? flat_color : COLOR);
 	vec3 base = src.rgb;
-	// ¿Es madera? Tono entre rojizo y amarillento, algo saturado y no muy claro (en espacio lineal).
+	// Is it wood? Hue between reddish and yellowish, fairly saturated and not too light (in linear space).
 	vec3 hsv = rgb2hsv(pow(base, vec3(1.0 / 2.2)));
 	float is_wood = smoothstep(0.01, 0.04, hsv.x) * (1.0 - smoothstep(0.11, 0.14, hsv.x))
 			* smoothstep(0.3, 0.45, hsv.y) * (1.0 - smoothstep(0.88, 0.95, hsv.z)) * wood;
-	// Coordenadas de la cara: "x" va a lo largo de la veta, "y" a lo ancho.
+	// Face coordinates: "x" runs along the grain, "y" across it.
 	vec2 uv;
 	if (local_normal.y > 0.6) {
 		uv = local_pos.xz;
@@ -66,14 +66,14 @@ void fragment() {
 	}
 	float wave = noise(vec2(uv.x * 1.3, uv.y * 3.0)) * 1.4;
 	float bands = sin((uv.y * grain_scale + wave) * 6.2832);
-	float streak = smoothstep(0.35, 0.95, bands);                   // Franjas claras, suaves.
-	float dark = smoothstep(-0.55, -0.95, bands) * 0.6;             // Líneas oscuras finas.
+	float streak = smoothstep(0.35, 0.95, bands);                   // Soft light stripes.
+	float dark = smoothstep(-0.55, -0.95, bands) * 0.6;             // Thin dark lines.
 	float knot_cell = hash(floor(uv * vec2(1.5, 4.0)));
 	vec2 knot_pos = fract(uv * vec2(1.5, 4.0)) - 0.5;
 	float knot = step(0.86, knot_cell) * smoothstep(0.16, 0.08, length(knot_pos * vec2(1.0, 0.6)));
 	vec3 wood_col = wood_color * mix(0.8, 1.15, smoothstep(0.45, 0.9, hsv.z));
 	wood_col *= 1.0 + streak * 0.16 - dark * 0.38 - knot * 0.32;
-	// Alfa del vértice: 0 tela a rayas, 0,7 mercancía (sin veta), 1 lo demás.
+	// Vertex alpha: 0 striped cloth, 0.7 goods (no grain), 1 everything else.
 	float cloth = 1.0 - step(0.35, src.a);
 	is_wood *= step(0.85, src.a);
 	float stripe = step(0.5, fract(local_pos.x / (stripe_width * 2.0) + 0.25));
@@ -81,7 +81,7 @@ void fragment() {
 	ALBEDO = mix(mix(base, wood_col, is_wood), cloth_col, cloth);
 	ROUGHNESS = mix(0.85, 0.7, is_wood);
 	SPECULAR = mix(0.2, 0.35, is_wood);
-	// Brillo suave en las aristas de la madera (bordes "barnizados" de juguete).
+	// Soft shine on the wood edges (toy-like "varnished" edges).
 	RIM = 0.25 * is_wood;
 	RIM_TINT = 0.6;
 }

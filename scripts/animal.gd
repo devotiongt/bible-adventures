@@ -1,12 +1,12 @@
 extends Node3D
-## Animal de ambiente: pasea, se para a comer y descansa cerca de su zona.
-## (En el capítulo de los animales serán los que Noé guía al arca.)
+## Ambient animal: wanders, stops to eat and rests near its area.
+## (In the animals chapter they will be the ones Noah guides to the ark.)
 
 const Models := preload("res://scripts/models.gd")
 
-## Modelo -> [escala, velocidad natural del ciclo "Walk" en unidades del modelo].
-## La velocidad natural se midió con el recorrido de las pezuñas durante el apoyo,
-## así el animal avanza exactamente lo que dan sus patas y no "patina".
+## Model -> [scale, natural speed of the "Walk" cycle in model units].
+## The natural speed was measured from the hooves' travel while planted,
+## so the animal moves exactly as far as its legs carry it and doesn't "skate".
 const SPECIES := {
 	"Deer": [0.36, 2.49],
 	"Stag": [0.38, 2.42],
@@ -33,7 +33,7 @@ var _walking := false
 
 
 func _ready() -> void:
-	# Se mueve cada fotograma (no en la física): sin interpolación de física.
+	# It moves every frame (not in physics): no physics interpolation.
 	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	var data: Array = SPECIES[species]
 	var model: Node3D = Models.scene(Models.ANIMALS % species).instantiate()
@@ -76,7 +76,7 @@ func _rest() -> void:
 
 
 func _wander() -> void:
-	# En un corral pasea solo dentro de la cerca; fuera, por los alrededores de su sitio.
+	# In a pen it only wanders inside the fence; outside, around its spot.
 	var pen: float = world.corral_radius_at(home.x, home.z)
 	var reach := pen - 1.2 if pen > 0.0 else 7.0
 	for attempt in 10:

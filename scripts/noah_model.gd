@@ -1,28 +1,28 @@
 extends Node3D
-## Modelo de Noé: personaje base de Quaternius (CC0) con pelo largo y barba canosos,
-## el cuerpo adelgazado y la túnica hechos en Blender (herramientas/blender/tunica.py),
-## la falda como tela simulada, sandalias y las animaciones de la Universal Animation Library.
+## Noah model: Quaternius base character (CC0) with long gray hair and beard,
+## the slimmed body and the tunic made in Blender (tools/blender/tunic.py),
+## the skirt as simulated cloth, sandals and the animations from the Universal Animation Library.
 
-const CHARACTER := "res://assets/personajes/Superhero_Male_FullBody.gltf"
-const HAIR := ["res://assets/personajes/Hair_Long.gltf", "res://assets/personajes/Hair_Beard.gltf"]
-const ANIMATIONS := "res://assets/animaciones/UAL1_Standard.glb"
+const CHARACTER := "res://assets/characters/Superhero_Male_FullBody.gltf"
+const HAIR := ["res://assets/characters/Hair_Long.gltf", "res://assets/characters/Hair_Beard.gltf"]
+const ANIMATIONS := "res://assets/animations/UAL1_Standard.glb"
 const HAIR_SHADER := preload("res://shaders/hair.gdshader")
 const RobeCloth := preload("res://scripts/robe_cloth.gd")
-const CLOTHES := "res://assets/personajes/tunica.glb"
+const CLOTHES := "res://assets/characters/tunic.glb"
 
 const LOOPING := ["Idle", "Walk", "Jog_Fwd", "Sprint", "Fixing_Kneeling", "Idle_Talking"]
 
-## Color de cada material de la ropa hecha en Blender.
+## Color of each material of the clothes made in Blender.
 const CLOTH_COLORS := {
-	"Lino": Color("d8c6a2"),
-	"Manto": Color("7d5b3b"),
-	"Faja": Color("94402c"),
-	"Borde": Color("8c6a46"),
+	"Linen": Color("d8c6a2"),
+	"Mantle": Color("7d5b3b"),
+	"Sash": Color("94402c"),
+	"Trim": Color("8c6a46"),
 }
 const LEATHER := Color("6e4526")
 const SOLE := Color("3f2716")
 
-## Perfil de la túnica en reposo: [altura, semieje x, semieje z, centro z].
+## Profile of the tunic at rest: [height, semi-axis x, semi-axis z, center z].
 const ROBE_PROFILE := [
 	[0.05, 0.29, 0.26, -0.02],
 	[0.45, 0.26, 0.23, -0.02],
@@ -30,8 +30,8 @@ const ROBE_PROFILE := [
 	[1.04, 0.16, 0.125, -0.025],
 ]
 
-const HEM_HEIGHT := 0.32  ## La túnica llega a media pantorrilla.
-const SKIRT_TOP := 1.04  ## Altura (en reposo) donde empieza la falda (bajo la faja); igual que en tunica.py.
+const HEM_HEIGHT := 0.32  ## The tunic reaches mid-calf.
+const SKIRT_TOP := 1.04  ## Height (at rest) where the skirt starts (below the sash); same as in tunic.py.
 
 var skeleton: Skeleton3D
 var anim: AnimationPlayer
@@ -40,7 +40,7 @@ var _action_left := 0.0
 
 func _ready() -> void:
 	var character: Node3D = load(CHARACTER).instantiate()
-	character.rotation.y = PI  # El modelo mira a +Z; en el juego "adelante" es -Z.
+	character.rotation.y = PI  # The model faces +Z; in the game "forward" is -Z.
 	add_child(character)
 	skeleton = character.get_node("Armature/Skeleton3D")
 	for path in HAIR:
@@ -55,26 +55,26 @@ func _process(delta: float) -> void:
 	_action_left -= delta
 
 
-## Velocidad natural (m/s) de cada ciclo, medida con el recorrido del pie: al
-## escalar la animación por velocidad / natural, los pies no patinan.
+## Natural speed (m/s) of each cycle, measured from the foot travel: by
+## scaling the animation by speed / natural, the feet don't slide.
 const WALK_SPEED := 1.01
-const JOG_SPEED := 1.885  ## Del trote "con túnica" (piernas al 65 %).
+const JOG_SPEED := 1.885  ## From the "tunic" jog (legs at 65 %).
 const JOG_LEG_SWING := 0.65
 
 
-## Elige caminar, trotar o reposo según la velocidad (salvo durante una acción).
+## Picks walk, jog or idle based on speed (except during an action).
 func update_locomotion(speed: float) -> void:
 	if _action_left > 0.0 and speed < 0.5:
 		return
 	if speed > 1.6:
-		_play("Trote", speed / JOG_SPEED)
+		_play("Trot", speed / JOG_SPEED)
 	elif speed > 0.3:
 		_play("Walk", speed / WALK_SPEED)
 	else:
 		_play("Idle", 1.0)
 
 
-## Reproduce una animación puntual (talar, recoger, construir). Devuelve su duración.
+## Plays a one-off animation (chop, gather, build). Returns its duration.
 func action(anim_name: String, speed := 1.5, max_time := 0.9) -> float:
 	anim.play(anim_name, 0.12, speed)
 	anim.seek(0.0, true)
@@ -94,22 +94,22 @@ func _setup_animations(character: Node3D) -> void:
 	source.free()
 	for anim_name in library.get_animation_list():
 		var a := library.get_animation(anim_name)
-		# Sin desplazamiento del hueso raíz: el movimiento lo pone el CharacterBody.
+		# No root bone motion: the CharacterBody provides the movement.
 		var root_track := a.find_track(NodePath("Armature/Skeleton3D:root"), Animation.TYPE_POSITION_3D)
 		if root_track != -1:
 			a.remove_track(root_track)
 		if anim_name in LOOPING:
 			a.loop_mode = Animation.LOOP_LINEAR
-	library.add_animation("Trote", _robe_jog(library.get_animation("Jog_Fwd")))
+	library.add_animation("Trot", _robe_jog(library.get_animation("Jog_Fwd")))
 	anim = AnimationPlayer.new()
 	character.add_child(anim)
 	anim.add_animation_library("", library)
 	anim.play("Idle")
 
 
-## El trote original abre mucho las piernas (está pensado para pantalones).
-## Esta copia acerca la rotación de muslos, pantorrillas y pies a la de reposo,
-## dando pasos más cortos que una túnica larga sí puede cubrir.
+## The original jog spreads the legs a lot (it's meant for trousers).
+## This copy brings the rotation of thighs, calves and feet closer to the rest pose,
+## giving shorter steps that a long tunic can cover.
 func _robe_jog(source: Animation) -> Animation:
 	var a: Animation = source.duplicate(true)
 	for t in a.get_track_count():
@@ -125,7 +125,7 @@ func _robe_jog(source: Animation) -> Animation:
 	return a
 
 
-# --- Pelo ---------------------------------------------------------------------
+# --- Hair ---------------------------------------------------------------------
 
 func _attach_skinned(path: String) -> void:
 	var source: Node = load(path).instantiate()
@@ -147,36 +147,36 @@ func _tint_hair(mi: MeshInstance3D) -> void:
 		mi.set_surface_override_material(s, m)
 
 
-# --- Ropa ---------------------------------------------------------------------
+# --- Clothes ------------------------------------------------------------------
 
 func _build_clothes() -> void:
 	var source: Node = load(CLOTHES).instantiate()
 	var source_skeleton: Skeleton3D = source.find_children("*", "Skeleton3D", true, false)[0]
-	var skirt_template: Mesh = (source.find_child("Falda", true, false) as MeshInstance3D).mesh
-	# El cuerpo adelgazado en Blender sustituye al original (que es de "superhéroe").
+	var skirt_template: Mesh = (source.find_child("Skirt", true, false) as MeshInstance3D).mesh
+	# The body slimmed in Blender replaces the original one (which is a "superhero" body).
 	(skeleton.get_node("SuperHero_Male") as MeshInstance3D).visible = false
-	for part in ["Cuerpo", "Tunica"]:
+	for part in ["Body", "Tunic"]:
 		var mi := source.find_child(part, true, false) as MeshInstance3D
 		mi.get_parent().remove_child(mi)
 		mi.owner = null
 		mi.skin = _rebind_skin(mi.skin, source_skeleton)
 		skeleton.add_child(mi)
 		mi.skeleton = NodePath("..")
-		if part == "Tunica":
+		if part == "Tunic":
 			_apply_cloth_materials(mi)
 	source.free()
 
 	var skirt := RobeCloth.new()
-	skirt.name = "FaldaTela"
+	skirt.name = "SkirtCloth"
 	var rings := _resample(ROBE_PROFILE, HEM_HEIGHT, SKIRT_TOP, 8)
 	rings.reverse()
-	skirt.setup(skeleton, rings, CLOTH_COLORS["Lino"], CLOTH_COLORS["Borde"], skirt_template, CLOTH_COLORS)
+	skirt.setup(skeleton, rings, CLOTH_COLORS["Linen"], CLOTH_COLORS["Trim"], skirt_template, CLOTH_COLORS)
 	add_child(skirt)
 
 
-## Blender exporta los huesos con su propia orientación. La malla está en la misma
-## posición de reposo que el cuerpo, así que basta con enlazar cada hueso (por nombre)
-## al reposo del esqueleto de Noé.
+## Blender exports the bones with its own orientation. The mesh is in the same
+## rest position as the body, so it's enough to bind each bone (by name)
+## to the rest pose of Noah's skeleton.
 func _rebind_skin(source_skin: Skin, source_skeleton: Skeleton3D) -> Skin:
 	var skin := Skin.new()
 	for i in source_skin.get_bind_count():
@@ -191,8 +191,8 @@ func _rebind_skin(source_skin: Skin, source_skeleton: Skeleton3D) -> Skin:
 func _apply_cloth_materials(mi: MeshInstance3D) -> void:
 	for s in mi.mesh.get_surface_count():
 		var source := mi.mesh.surface_get_material(s)
-		var mat_name := source.resource_name if source else "Lino"
-		mi.set_surface_override_material(s, cloth_material(CLOTH_COLORS.get(mat_name, CLOTH_COLORS["Lino"])))
+		var mat_name := source.resource_name if source else "Linen"
+		mi.set_surface_override_material(s, cloth_material(CLOTH_COLORS.get(mat_name, CLOTH_COLORS["Linen"])))
 
 
 static var _cloth_materials := {}
@@ -208,11 +208,11 @@ static func cloth_material(color: Color) -> StandardMaterial3D:
 	return _cloth_materials[color]
 
 
-# --- Sandalias -----------------------------------------------------------------
+# --- Sandals -------------------------------------------------------------------
 
-## Suela y tres tiras de cuero (dedos, empeine y tobillo) para cada pie. Se ajustan a
-## la forma real del pie leyendo los vértices del cuerpo, y van pegadas a los huesos
-## del pie (la suela y la tira de los dedos al hueso de los dedos).
+## Sole and three leather straps (toes, instep and ankle) for each foot. They fit
+## the real shape of the foot by reading the body's vertices, and are attached to the
+## foot bones (the sole and the toe strap to the toe bone).
 func _build_sandals() -> void:
 	var body: MeshInstance3D = skeleton.get_node("SuperHero_Male")
 	var verts: PackedVector3Array = body.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
@@ -231,16 +231,16 @@ func _build_sandals() -> void:
 		var sole := _bounds(verts, func(v: Vector3) -> bool: return v.x * sx > 0.02 and v.y < 0.04)
 		var sole_lo: Vector3 = sole[0]
 		var sole_hi: Vector3 = sole[1]
-		# Suela.
+		# Sole.
 		var sole_center := (sole_lo + sole_hi) * 0.5
 		var sole_size := sole_hi - sole_lo + Vector3(0.02, 0.0, 0.025)
 		_sandal_box(st, Vector3(sole_center.x, 0.0, sole_center.z), Vector3(sole_size.x, 0.024, sole_size.z), foot, ball, ball_z - 0.02)
-		# Tiras por encima del pie.
+		# Straps over the foot.
 		for strap in [[ball_z - 0.035, ball], [lerpf(sole_lo.z, ball_z, 0.5), foot]]:
 			var z0: float = strap[0]
 			var slice := _bounds(verts, func(v: Vector3) -> bool: return v.x * sx > 0.02 and absf(v.z - z0) < 0.012 and v.y < 0.16)
 			_sandal_arc(st, slice, z0, strap[1])
-		# Tira del tobillo.
+		# Ankle strap.
 		var ankle := _bounds(verts, func(v: Vector3) -> bool: return v.x * sx > 0.02 and v.y > 0.085 and v.y < 0.115 and v.z < 0.05)
 		_sandal_ring(st, ankle, 0.1, foot)
 	var mat := StandardMaterial3D.new()
@@ -248,7 +248,7 @@ func _build_sandals() -> void:
 	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	mat.roughness = 0.7
 	var mi := MeshInstance3D.new()
-	mi.name = "Sandalias"
+	mi.name = "Sandals"
 	mi.mesh = st.commit()
 	mi.material_override = mat
 	mi.skin = skin
@@ -256,7 +256,7 @@ func _build_sandals() -> void:
 	mi.skeleton = NodePath("..")
 
 
-## [mínimo, máximo] de los vértices que cumplen la condición.
+## [min, max] of the vertices that meet the condition.
 func _bounds(verts: PackedVector3Array, keep: Callable) -> Array:
 	var lo := Vector3.ONE * 99.0
 	var hi := -Vector3.ONE * 99.0
@@ -292,7 +292,7 @@ func _sandal_box(st: SurfaceTool, center: Vector3, size: Vector3, foot: int, bal
 		st.add_index(base + i)
 
 
-## Tira en arco por encima del pie, de un lado de la suela al otro.
+## Arched strap over the foot, from one side of the sole to the other.
 func _sandal_arc(st: SurfaceTool, slice: Array, z0: float, bone: int) -> void:
 	var lo: Vector3 = slice[0]
 	var hi: Vector3 = slice[1]
@@ -308,7 +308,7 @@ func _sandal_arc(st: SurfaceTool, slice: Array, z0: float, bone: int) -> void:
 	_sandal_strip(st, points, normals, Vector3(0, 0, 0.022), bone)
 
 
-## Tira horizontal alrededor del tobillo.
+## Horizontal strap around the ankle.
 func _sandal_ring(st: SurfaceTool, slice: Array, y0: float, bone: int) -> void:
 	var lo: Vector3 = slice[0]
 	var hi: Vector3 = slice[1]
@@ -338,7 +338,7 @@ func _sandal_strip(st: SurfaceTool, points: Array, normals: Array, width: Vector
 		st.add_index(i + 3)
 
 
-## Interpola el perfil para tener anillos regulares entre y0 e y1.
+## Interpolates the profile to get evenly spaced rings between y0 and y1.
 func _resample(profile: Array, y0: float, y1: float, rings: int, grow := 0.0) -> Array:
 	var out := []
 	for r in rings + 1:

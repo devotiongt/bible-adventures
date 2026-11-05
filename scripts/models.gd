@@ -1,14 +1,14 @@
 extends RefCounted
-## Carga de modelos de Quaternius (CC0) y materiales compartidos:
-## viento en hojas y hierba, madera procedural para el arca.
+## Loading of Quaternius models (CC0) and shared materials:
+## wind on leaves and grass, procedural wood for the ark.
 
 const FOLIAGE_SHADER := preload("res://shaders/foliage.gdshader")
 const WOOD_SHADER := preload("res://shaders/wood.gdshader")
 
-const NATURE := "res://assets/naturaleza/%s.gltf"
-const ANIMALS := "res://assets/animales/%s.gltf"
+const NATURE := "res://assets/nature/%s.gltf"
+const ANIMALS := "res://assets/animals/%s.gltf"
 
-## Texturas de follaje: lo que use una de estas se balancea con el viento.
+## Foliage textures: anything using one of these sways in the wind.
 const FOLIAGE_TEXTURES := ["Leaves", "Leaf_", "Grass", "Flowers"]
 
 static var _scenes: Dictionary = {}
@@ -22,7 +22,7 @@ static func scene(path: String) -> PackedScene:
 	return _scenes[path]
 
 
-## Instancia un modelo de naturaleza con el viento ya aplicado a sus hojas.
+## Instances a nature model with the wind already applied to its leaves.
 static func nature(model: String, sway_height := 4.0, wind := 0.06) -> Node3D:
 	var node: Node3D = scene(NATURE % model).instantiate()
 	apply_wind(node, sway_height, wind)
@@ -61,7 +61,7 @@ static func foliage_material(source: BaseMaterial3D, sway_height: float, wind: f
 	return _foliage[key]
 
 
-## Primer MeshInstance3D de un modelo (para MultiMesh de hierba, etc.).
+## First MeshInstance3D of a model (for grass MultiMesh, etc.).
 static func first_mesh(model: String) -> MeshInstance3D:
 	var node: Node3D = scene(NATURE % model).instantiate()
 	var mi: MeshInstance3D = node.find_children("*", "MeshInstance3D", true, false)[0]

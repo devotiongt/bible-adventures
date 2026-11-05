@@ -1,4 +1,4 @@
-// Efecto diorama (tilt-shift): desenfoca arriba y abajo de la pantalla, más una viñeta suave.
+// Diorama effect (tilt-shift): blurs the top and bottom of the screen, plus a soft vignette.
 shader_type canvas_item;
 
 uniform sampler2D screen_tex : hint_screen_texture, filter_linear_mipmap;

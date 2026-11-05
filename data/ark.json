@@ -1,0 +1,27 @@
+[
+	{
+		"name": "Keel and ribs",
+		"materials": {"beam": 3, "peg": 8},
+		"on_complete": "The keel is laid. It is the backbone of the ark: everything else will rise on top of it."
+	},
+	{
+		"name": "Hull",
+		"materials": {"plank": 12, "beam": 2, "peg": 12},
+		"on_complete": "“The length of the ark shall be three hundred cubits, the breadth of it fifty cubits, and the height of it thirty cubits.” (Genesis 6:15)"
+	},
+	{
+		"name": "Seal with pitch",
+		"materials": {"pitch": 6},
+		"on_complete": "Noah covered the ark with pitch within and without, just as God had commanded him. (Genesis 6:14)"
+	},
+	{
+		"name": "Decks and rooms",
+		"materials": {"plank": 10, "beam": 3, "peg": 8},
+		"on_complete": "“With lower, second, and third stories shalt thou make it.” There will be room for every animal. (Genesis 6:16)"
+	},
+	{
+		"name": "Roof, window and door",
+		"materials": {"plank": 8, "rope": 2, "peg": 6},
+		"on_complete": "“A window shalt thou make to the ark... and the door of the ark shalt thou set in the side thereof.” (Genesis 6:16)"
+	}
+]

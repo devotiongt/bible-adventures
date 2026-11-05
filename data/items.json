@@ -1,13 +1,13 @@
 {
-	"madera": {"nombre": "Madera", "color": "#9c6b3f", "descripcion": "Madera de gofer, la que Dios pidió para el arca."},
-	"fibra": {"nombre": "Fibra", "color": "#b9c46a", "descripcion": "Fibra de juncos para trenzar cuerdas."},
-	"piedra": {"nombre": "Piedra", "color": "#9a9a9a", "descripcion": "Piedra para fabricar herramientas."},
-	"brea": {"nombre": "Brea", "color": "#2e2420", "descripcion": "Brea para sellar el arca por dentro y por fuera."},
-	"tablon": {"nombre": "Tablón", "color": "#c99a62", "descripcion": "Tablones para el casco y las cubiertas."},
-	"viga": {"nombre": "Viga", "color": "#7d5230", "descripcion": "Vigas gruesas para la estructura."},
-	"clavija": {"nombre": "Clavija", "color": "#e0c08a", "descripcion": "Clavijas de madera para unir las piezas."},
-	"cuerda": {"nombre": "Cuerda", "color": "#d8c79a", "descripcion": "Cuerda trenzada."},
-	"hacha": {"nombre": "Hacha", "color": "#6f8fa8", "herramienta": true, "descripcion": "Tala árboles el doble de rápido."},
-	"martillo": {"nombre": "Martillo", "color": "#8a6f5a", "herramienta": true, "descripcion": "Necesario para construir el arca."},
-	"cubo": {"nombre": "Cubo", "color": "#a8845a", "herramienta": true, "descripcion": "Sirve para sacar brea de los pozos."}
+	"wood": {"name": "Wood", "color": "#9c6b3f", "description": "Gopher wood, the kind God asked for the ark."},
+	"fiber": {"name": "Fiber", "color": "#b9c46a", "description": "Reed fiber for braiding rope."},
+	"stone": {"name": "Stone", "color": "#9a9a9a", "description": "Stone for making tools."},
+	"pitch": {"name": "Pitch", "color": "#2e2420", "description": "Pitch to seal the ark inside and out."},
+	"plank": {"name": "Plank", "color": "#c99a62", "description": "Planks for the hull and the decks."},
+	"beam": {"name": "Beam", "color": "#7d5230", "description": "Thick beams for the frame."},
+	"peg": {"name": "Peg", "color": "#e0c08a", "description": "Wooden pegs to join the pieces."},
+	"rope": {"name": "Rope", "color": "#d8c79a", "description": "Braided rope."},
+	"axe": {"name": "Axe", "color": "#6f8fa8", "tool": true, "description": "Chops trees twice as fast."},
+	"hammer": {"name": "Hammer", "color": "#8a6f5a", "tool": true, "description": "Needed to build the ark."},
+	"bucket": {"name": "Bucket", "color": "#a8845a", "tool": true, "description": "Used to draw pitch from the pits."}
 }

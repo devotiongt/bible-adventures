@@ -1,8 +1,8 @@
 extends RefCounted
-## Vegetación y rocas con el estilo de la referencia (referencias/arboles.webp y rocas_terreno.png):
-## árboles redondos con espiral, pinos por capas, arbustos de bolitas, flores de cinco pétalos, matas
-## de hierba y rocas facetadas lilas. Cada pieza se junta en una sola malla con color por vértice
-## (una llamada de dibujo) y se guarda por variante para reutilizarla.
+## Vegetation and rocks in the style of the reference (references/trees.webp and terrain_rocks.png):
+## round trees with a swirl, layered pines, bushes made of little balls, five-petal flowers, tufts
+## of grass and faceted lilac rocks. Each piece is merged into a single vertex-colored mesh
+## (one draw call) and cached per variant for reuse.
 
 const PLANT_SHADER := preload("res://shaders/toon_plant.gdshader")
 const LowPoly := preload("res://scripts/lowpoly.gd")
@@ -31,46 +31,46 @@ static var _meshes: Dictionary = {}
 static var _materials: Dictionary = {}
 
 
-## Árbol redondo: copa de capas como un helado, con una bola lateral con espiral.
+## Round tree: a layered crown like an ice cream, with a side ball with a swirl.
 static func round_tree(rng: RandomNumberGenerator) -> Node3D:
-	return _instance("arbol_%d" % rng.randi_range(0, VARIANTS - 1), _build_round_tree, 3.2, 0.03)
+	return _instance("tree_%d" % rng.randi_range(0, VARIANTS - 1), _build_round_tree, 3.2, 0.03)
 
 
 static func pine(rng: RandomNumberGenerator) -> Node3D:
-	return _instance("pino_%d" % rng.randi_range(0, VARIANTS - 1), _build_pine, 4.0, 0.03)
+	return _instance("pine_%d" % rng.randi_range(0, VARIANTS - 1), _build_pine, 4.0, 0.03)
 
 
 static func bush(rng: RandomNumberGenerator) -> Node3D:
-	return _instance("arbusto_%d" % rng.randi_range(0, VARIANTS - 1), _build_bush, 0.8, 0.03)
+	return _instance("bush_%d" % rng.randi_range(0, VARIANTS - 1), _build_bush, 0.8, 0.03)
 
 
 static func flower(rng: RandomNumberGenerator) -> Node3D:
 	return flower_of(rng.randi_range(0, FLOWERS.size() - 1))
 
 
-## Flor de un color concreto de FLOWERS (para macizos de un solo color).
+## Flower of a specific color from FLOWERS (for single-color beds).
 static func flower_of(color: int) -> Node3D:
-	return _instance("flor_%d" % color, _build_flower, 0.3, 0.05)
+	return _instance("flower_%d" % color, _build_flower, 0.3, 0.05)
 
 
-## Olivo: tronco retorcido y copa ancha de bolas aplanadas verde salvia (el árbol de la plaza).
+## Olive tree: twisted trunk and a wide crown of flattened sage-green balls (the plaza's tree).
 static func olive(rng: RandomNumberGenerator) -> Node3D:
-	return _instance("olivo_%d" % rng.randi_range(0, VARIANTS - 1), _build_olive, 3.0, 0.025)
+	return _instance("olive_%d" % rng.randi_range(0, VARIANTS - 1), _build_olive, 3.0, 0.025)
 
 
-## Mata de hierba alta (decoración y juncos).
+## Tuft of tall grass (decoration and reeds).
 static func tuft(rng: RandomNumberGenerator) -> Node3D:
-	return _instance("mata_%d" % rng.randi_range(0, VARIANTS - 1), _build_tuft, 0.6, 0.08)
+	return _instance("shrub_%d" % rng.randi_range(0, VARIANTS - 1), _build_tuft, 0.6, 0.08)
 
 
 static func rock(rng: RandomNumberGenerator) -> Node3D:
 	var node := MeshInstance3D.new()
-	node.mesh = mesh("roca_%d" % rng.randi_range(0, VARIANTS - 1), _build_rock)
+	node.mesh = mesh("rock_%d" % rng.randi_range(0, VARIANTS - 1), _build_rock)
 	node.material_override = material(0.0, 1.0, 0.95)
 	return node
 
 
-## Malla de una variante (la crea la primera vez). El número final del nombre es la semilla.
+## Mesh of a variant (created the first time). The trailing number in the name is the seed.
 static func mesh(key: String, builder: Callable) -> ArrayMesh:
 	if not _meshes.has(key):
 		var rng := RandomNumberGenerator.new()
@@ -102,9 +102,9 @@ static func _instance(key: String, builder: Callable, sway_height: float, wind: 
 	return node
 
 
-# --- Piezas -------------------------------------------------------------------
+# --- Pieces -------------------------------------------------------------------
 
-## Añade una malla primitiva a la malla final, transformada y de un color. flat = caras facetadas.
+## Adds a primitive mesh to the final mesh, transformed and in one color. flat = faceted faces.
 static func add(st: SurfaceTool, prim: PrimitiveMesh, xform: Transform3D, color: Color, flat := false,
 		jitter := 0.0, rng: RandomNumberGenerator = null) -> void:
 	var arrays := prim.get_mesh_arrays()
@@ -114,7 +114,7 @@ static func add(st: SurfaceTool, prim: PrimitiveMesh, xform: Transform3D, color:
 	var lin := color.srgb_to_linear()
 	var nb := xform.basis.inverse().transposed()
 	if jitter > 0.0:
-		# Mismo desplazamiento para vértices en la misma posición (las costuras no se abren).
+		# Same offset for vertices at the same position (seams don't open).
 		var offsets := {}
 		for i in verts.size():
 			var k := verts[i].snapped(Vector3.ONE * 0.001)
@@ -163,10 +163,10 @@ static func _build_round_tree(st: SurfaceTool, rng: RandomNumberGenerator, _vari
 	var leaf: Color = LEAF[rng.randi_range(0, LEAF.size() - 1)]
 	add(st, cone(0.17, 0.11, height + 0.4, 8), _at(Vector3(0, (height + 0.4) * 0.5, 0)), TRUNK)
 	var side := -1.0 if rng.randf() < 0.5 else 1.0
-	# Rama hacia la bola lateral.
+	# Branch toward the side ball.
 	add(st, cone(0.08, 0.06, 0.7, 6), _at(Vector3(0.25 * side, height - 0.15, 0), Vector3.ONE,
 			Vector3(0, 0, -0.9 * side)), TRUNK)
-	# Copa en capas, cada una algo menor y más arriba (el "helado" de la referencia).
+	# Layered crown, each layer a bit smaller and higher (the reference's "ice cream").
 	var r := rng.randf_range(1.0, 1.15)
 	var y := height + 0.55
 	for i in 4:
@@ -174,7 +174,7 @@ static func _build_round_tree(st: SurfaceTool, rng: RandomNumberGenerator, _vari
 		add(st, sphere(ri), _at(Vector3(0.05 * i * side, y, 0), Vector3(1, 0.62, 1)),
 				leaf.lightened(0.03 * i))
 		y += ri * 0.5
-	# Bola lateral con espiral mirando hacia afuera.
+	# Side ball with the swirl facing outward.
 	var ball := Vector3(0.75 * side, height + 0.15, 0.15)
 	var br := r * 0.68
 	add(st, sphere(br), _at(ball), leaf.darkened(0.04))
@@ -216,7 +216,7 @@ static func _build_pine(st: SurfaceTool, rng: RandomNumberGenerator, _variant: i
 		add(st, cone(t[0] * s, 0.0, h, 10), _at(Vector3(0, y + h * 0.5, 0), Vector3.ONE,
 				Vector3(0, rng.randf() * TAU, 0)), green.lightened(0.04 * i), true)
 		y += h * 0.55
-	# Remate en punta.
+	# Pointed top.
 	add(st, cone(0.22 * s, 0.0, 0.6 * s, 8), _at(Vector3(0, y + 0.3 * s, 0)), green.lightened(0.18), true)
 
 
@@ -240,7 +240,7 @@ static func _build_flower(st: SurfaceTool, _rng: RandomNumberGenerator, variant:
 	add(st, sphere(0.04, 8, 4), _at(Vector3(0, 0.245, 0), Vector3(1, 0.6, 1)), FLOWER_CENTER)
 
 
-## Espiga de trigo: tallos dorados con su espiga (los campos de village.gd).
+## Wheat: golden stalks with their ears (village.gd's fields).
 static func build_wheat(st: SurfaceTool, rng: RandomNumberGenerator, _variant: int) -> void:
 	for i in 5:
 		var a := TAU * i / 5.0 + rng.randf_range(-0.4, 0.4)
@@ -253,7 +253,7 @@ static func build_wheat(st: SurfaceTool, rng: RandomNumberGenerator, _variant: i
 				WHEAT_HEAD)
 
 
-## Hortalizas del huerto (village.gd): lechuga, cebolla y calabaza.
+## Garden vegetables (village.gd): lettuce, onion and squash.
 static func build_lettuce(st: SurfaceTool, rng: RandomNumberGenerator, _variant: int) -> void:
 	for i in 6:
 		var a := TAU * i / 6.0
@@ -283,7 +283,7 @@ static func _build_tuft(st: SurfaceTool, rng: RandomNumberGenerator, _variant: i
 	tuft_blades(st, rng, 7, 0.55)
 
 
-## Hojas de una mata: conos finos de 3 lados, inclinados hacia afuera, con la punta más clara.
+## Blades of a tuft: thin 3-sided cones, leaning outward, with a lighter tip.
 static func tuft_blades(st: SurfaceTool, rng: RandomNumberGenerator, count: int, height: float) -> void:
 	for i in count:
 		var a := TAU * i / count + rng.randf_range(-0.3, 0.3)
@@ -302,7 +302,7 @@ static func _build_rock(st: SurfaceTool, rng: RandomNumberGenerator, _variant: i
 	tmp.begin(Mesh.PRIMITIVE_TRIANGLES)
 	add(tmp, s, _at(Vector3(0, 0.3, 0), Vector3(rng.randf_range(1.0, 1.3), 0.8, rng.randf_range(0.85, 1.1))),
 			ROCK, true, 0.12, rng)
-	# Cada cara con un tono algo distinto (lila, gris, verdoso), como en la referencia.
+	# Each face with a slightly different tone (lilac, gray, greenish), as in the reference.
 	var built := tmp.commit_to_arrays()
 	var verts: PackedVector3Array = built[Mesh.ARRAY_VERTEX]
 	var normals: PackedVector3Array = built[Mesh.ARRAY_NORMAL]
@@ -313,4 +313,4 @@ static func _build_rock(st: SurfaceTool, rng: RandomNumberGenerator, _variant: i
 			var v := verts[t * 3 + k]
 			st.set_color(tint.srgb_to_linear())
 			st.set_normal(normals[t * 3 + k])
-			st.add_vertex(Vector3(v.x, maxf(v.y, 0.0), v.z))   # Base plana, apoyada en el suelo.
+			st.add_vertex(Vector3(v.x, maxf(v.y, 0.0), v.z))   # Flat base, resting on the ground.

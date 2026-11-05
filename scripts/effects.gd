@@ -1,5 +1,5 @@
 extends RefCounted
-## Partículas puntuales: astillas al talar, polvo al construir, etc.
+## One-shot particles: wood chips when chopping, dust when building, etc.
 
 const LowPoly := preload("res://scripts/lowpoly.gd")
 
@@ -35,7 +35,7 @@ static func burst(parent: Node, pos: Vector3, color: Color, amount := 14, size :
 	p.finished.connect(p.queue_free)
 
 
-## Nube de polvo suave (esferas que crecen y se desvanecen).
+## Soft dust cloud (spheres that grow and fade).
 static func dust(parent: Node, pos: Vector3, radius := 3.0, amount := 30) -> void:
 	var p := CPUParticles3D.new()
 	var mesh := SphereMesh.new()
